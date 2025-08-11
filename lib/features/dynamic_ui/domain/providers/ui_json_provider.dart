@@ -83,13 +83,14 @@ class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
   void resetToDefault() {
     state = const AsyncLoading();
     // No delay needed, but we keep a micro delay to yield the event loop
-    Future<void>.microtask(
-      () => state = const AsyncData(kDefaultDynamicUiJson),
-    );
+    Future<void>.microtask(() => state = const AsyncData(kDefaultDynamicUiJson));
+  }
+
+  void applyJson(Map<String, dynamic> json) {
+    state = AsyncData(json);
   }
 }
 
-final dynamicUiJsonProvider =
-    AsyncNotifierProvider<DynamicUiJsonNotifier, Map<String, dynamic>>(
-      () => DynamicUiJsonNotifier(),
-    );
+final dynamicUiJsonProvider = AsyncNotifierProvider<DynamicUiJsonNotifier, Map<String, dynamic>>(
+  () => DynamicUiJsonNotifier(),
+);

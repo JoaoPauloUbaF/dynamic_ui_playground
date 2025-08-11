@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dynamic_ui/presentation/widgets/dynamic_ui_builder.dart';
 import 'features/dynamic_ui/presentation/view_model/dynamic_ui_view_model.dart';
 import 'features/dynamic_ui/domain/providers/ui_json_provider.dart';
+import 'features/dynamic_ui/presentation/widgets/input_bottom_sheet.dart';
+import 'features/dynamic_ui/domain/mocks/ui_json_mocks.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -51,14 +53,18 @@ class MyHomePage extends ConsumerWidget {
         child: asyncJson.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, st) {
-            // Brief error message + rollback to last valid JSON
             final fallback = vm.lastValidOrDefault;
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Load error, showing last saved UI', style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  'Load error, showing last saved UI',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const SizedBox(height: 8),
-                Expanded(child: Center(child: DynamicUiBuilder(json: fallback))),
+                Expanded(
+                  child: Center(child: DynamicUiBuilder(json: fallback)),
+                ),
               ],
             );
           },
@@ -66,12 +72,25 @@ class MyHomePage extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Simulate a refresh to fetch new JSON
-          ref.read(dynamicUiJsonProvider.notifier).refreshFromServer();
+        onPressed: () async {
+          final result = await showModalBottomSheet<String>(
+            context: context,
+            useSafeArea: true,
+            isScrollControlled: true,
+            builder: (_) => const DynamicInputBottomSheet(
+              suggestions: kDefaultSuggestions,
+              showSuggestions: true,
+            ),
+          );
+          if (result != null && result.trim().isNotEmpty) {
+            final json = getMockForPrompt(result.trim());
+            if (json != null) {
+              ref.read(dynamicUiJsonProvider.notifier).applyJson(json);
+            }
+          }
         },
-        tooltip: 'Fetch JSON',
-        child: const Icon(Icons.cloud_download),
+        tooltip: 'New input',
+        child: const Icon(Icons.add_comment),
       ),
     );
   }
