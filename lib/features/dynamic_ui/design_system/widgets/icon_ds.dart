@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../base_ds.dart';
-import '../../utils/common_props.dart';
+import 'package:dynamic_ui_playground/core/design_system/base_ds.dart';
+import 'package:dynamic_ui_playground/features/dynamic_ui/utils/common_props.dart';
 
 class IconDS extends BaseDS<Icon> {
   IconDS({required this.iconName, this.color, this.size}) : icon = _iconFromName(iconName);

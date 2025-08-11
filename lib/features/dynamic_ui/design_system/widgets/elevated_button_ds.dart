@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../base_ds.dart';
+import 'package:dynamic_ui_playground/core/design_system/base_ds.dart';
 
 class ElevatedButtonDS extends BaseDS<ElevatedButton> {
   ElevatedButtonDS({required this.label, this.onPressed});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../base_ds.dart';
-import '../ds_helpers.dart';
+import 'package:dynamic_ui_playground/core/design_system/base_ds.dart';
+import 'package:dynamic_ui_playground/core/design_system/ds_helpers.dart';
 
 class RowDS extends BaseDS<Row> {
   RowDS({this.mainAxisAlignment, this.crossAxisAlignment, this.children = const []});

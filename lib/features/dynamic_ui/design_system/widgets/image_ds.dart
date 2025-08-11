@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../base_ds.dart';
-import '../ds_helpers.dart';
+import 'package:dynamic_ui_playground/core/design_system/base_ds.dart';
+import 'package:dynamic_ui_playground/core/design_system/ds_helpers.dart';
 
 class ImageDS extends BaseDS<Image> {
   ImageDS({required this.url, this.width, this.height, this.fit});
