@@ -13,7 +13,6 @@ String mainAxisToString(MainAxisAlignment v) {
     case MainAxisAlignment.spaceEvenly:
       return 'spaceEvenly';
     case MainAxisAlignment.start:
-    default:
       return 'start';
   }
 }
@@ -29,7 +28,6 @@ String crossAxisToString(CrossAxisAlignment v) {
     case CrossAxisAlignment.baseline:
       return 'baseline';
     case CrossAxisAlignment.center:
-    default:
       return 'center';
   }
 }
@@ -134,4 +132,3 @@ String boxFitToString(BoxFit v) {
       return 'scaleDown';
   }
 }
-

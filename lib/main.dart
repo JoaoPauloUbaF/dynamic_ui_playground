@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'features/dynamic_ui/view/dynamic_ui_builder.dart';
-import 'features/dynamic_ui/view_model/dynamic_ui_controller.dart';
+import 'features/dynamic_ui/presentation/widgets/dynamic_ui_builder.dart';
+import 'features/dynamic_ui/presentation/view_model/dynamic_ui_view_model.dart';
 
 void main() {
   runApp(const MyApp());

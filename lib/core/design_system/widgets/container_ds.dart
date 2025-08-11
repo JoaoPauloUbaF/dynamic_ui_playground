@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../base_ds.dart';
-import '../../../features/dynamic_ui/utils/common_props.dart';
+import '../../utils/common_props.dart';
 
 class ContainerDS extends BaseDS<Container> {
   ContainerDS({this.decoration, this.alignment, this.padding, this.child});
