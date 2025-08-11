@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../dynamic_ui/design_system/widgets_ds.dart';
+
+import '../../../../core/design_system/widgets_ds.dart';
 
 /// Builds a widget tree recursively from a JSON node using DS widgets.
 class DynamicUiBuilder extends StatelessWidget {
@@ -29,11 +30,15 @@ Widget _buildFromJson(Map<String, dynamic> node) {
     case 'column':
       return ColumnDS.fromJson(props, childrenWidgets).build();
     case 'container':
-      final Widget? child = childrenWidgets.isNotEmpty ? childrenWidgets.first : null;
+      final Widget? child = childrenWidgets.isNotEmpty
+          ? childrenWidgets.first
+          : null;
       return ContainerDS.fromJson(props, child).build();
     case 'sizedbox':
     case 'sized_box':
-      final Widget? child = childrenWidgets.isNotEmpty ? childrenWidgets.first : null;
+      final Widget? child = childrenWidgets.isNotEmpty
+          ? childrenWidgets.first
+          : null;
       return SizedBoxDS.fromJson(props, child).build();
     case 'text':
       return TextDS.fromJson(props).build();
@@ -51,4 +56,3 @@ Widget _buildFromJson(Map<String, dynamic> node) {
       return const SizedBox.shrink();
   }
 }
-
