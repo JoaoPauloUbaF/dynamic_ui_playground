@@ -73,19 +73,35 @@ class MyHomePage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await showModalBottomSheet<String>(
+          final currentJson = ref.read(dynamicUiJsonProvider).value ?? vm.lastValidOrDefault;
+          final updateSugs = getUpdateSuggestionsForJson(currentJson);
+          final result = await showModalBottomSheet(
             context: context,
             useSafeArea: true,
             isScrollControlled: true,
-            builder: (_) => const DynamicInputBottomSheet(
-              suggestions: kDefaultSuggestions,
-              showSuggestions: true,
+            builder: (_) => DynamicInputBottomSheet(
+              createSuggestions: kDefaultCreateSuggestions,
+              updateSuggestions: updateSugs,
             ),
           );
-          if (result != null && result.trim().isNotEmpty) {
-            final json = getMockForPrompt(result.trim());
-            if (json != null) {
-              ref.read(dynamicUiJsonProvider.notifier).applyJson(json);
+          if (result is Map) {
+            final mode = result['mode'] as String? ?? 'create';
+            final prompt = (result['prompt'] as String?)?.trim() ?? '';
+            if (prompt.isNotEmpty) {
+              if (mode == 'create') {
+                final json = getCreateMockForPrompt(prompt);
+                if (json != null) {
+                  ref.read(dynamicUiJsonProvider.notifier).applyJson(json);
+                }
+              } else {
+                final curr =
+                    ref.read(dynamicUiJsonProvider).value ??
+                    vm.lastValidOrDefault;
+                final updated = getUpdateMockForPrompt(prompt, curr);
+                if (updated != null) {
+                  ref.read(dynamicUiJsonProvider.notifier).applyJson(updated);
+                }
+              }
             }
           }
         },

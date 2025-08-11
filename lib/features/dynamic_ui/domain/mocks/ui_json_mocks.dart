@@ -1,5 +1,5 @@
 /// UI JSON mocks for suggestions
-const List<String> kDefaultSuggestions = [
+const List<String> kDefaultCreateSuggestions = [
   'Create a login screen with email and password',
   'Add a profile header with avatar and name',
   'Build a 2x2 grid of product cards',
@@ -7,7 +7,7 @@ const List<String> kDefaultSuggestions = [
   'Compose a settings page with toggles',
 ];
 
-Map<String, dynamic>? getMockForPrompt(String prompt) {
+Map<String, dynamic>? getCreateMockForPrompt(String prompt) {
   switch (prompt) {
     case 'Create a login screen with email and password':
       return _loginScreen();
@@ -22,6 +22,376 @@ Map<String, dynamic>? getMockForPrompt(String prompt) {
     default:
       return null;
   }
+}
+
+// Update suggestions and mocks
+const List<String> kDefaultUpdateSuggestions = [
+  'Change the background color to #FFF2F2F2',
+  'Round the input borders by 20',
+  'Remove the last item',
+  'Add a text widget after image widget',
+  'Change the image fit to cover',
+];
+
+/// Build context-aware update suggestions based on the current JSON.
+List<String> getUpdateSuggestionsForJson(Map<String, dynamic> current, {int max = 5}) {
+  bool hasImage = false;
+  bool hasTextField = false;
+  bool hasContainer = false;
+  bool hasText = false;
+  final types = <String>{};
+
+  void visit(Map<String, dynamic> n) {
+    final t = (n['type'] as String?)?.toLowerCase() ?? '';
+    types.add(t);
+    if (t == 'image') hasImage = true;
+    if (t == 'textfield' || t == 'text_field') hasTextField = true;
+    if (t == 'container') hasContainer = true;
+    if (t == 'text') hasText = true;
+    final children = (n['children'] as List?)?.whereType<Map>() ?? const Iterable<Map>.empty();
+    for (final c in children) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+
+  visit(current);
+
+  final suggestions = <String>[];
+  // Always useful
+  suggestions.add('Remove the last item');
+
+  if (hasContainer) {
+    suggestions.add('Change the background color to #FFF2F2F2');
+  }
+  if (hasTextField) {
+    suggestions.add('Round the input borders by 20');
+  }
+  if (hasImage) {
+    suggestions.add('Change the image fit to cover');
+    suggestions.add('Change the image size to 300x180');
+  }
+  if (hasText) {
+    suggestions.add('Change the fontfamily to Roboto');
+  }
+
+  // Relative insert: try to anchor to an existing type
+  if (hasImage) {
+    suggestions.add('Add a text widget after image widget');
+  } else if (types.contains('text')) {
+    suggestions.add('Add a icon widget before text widget');
+  } else {
+    suggestions.add('Add a text widget before elevatedButton widget');
+  }
+
+  // De-duplicate and cap
+  final deduped = <String>{...suggestions};
+  return deduped.take(max).toList();
+}
+
+Map<String, dynamic>? getUpdateMockForPrompt(String prompt, Map<String, dynamic> current) {
+  // Normalize
+  final p = prompt.trim();
+
+  // Change background color
+  final bgMatch = RegExp(r'^Change the background color to\s+([#A-Za-z0-9]+)$', caseSensitive: false).firstMatch(p);
+  if (bgMatch != null) {
+    final color = bgMatch.group(1)!;
+    return _setBackgroundColor(_clone(current), color);
+  }
+
+  // Round input borders by N
+  final roundMatch = RegExp(r'^Round (?:the )?input borders by\s+(\d+)$', caseSensitive: false).firstMatch(p);
+  if (roundMatch != null) {
+    final radius = double.tryParse(roundMatch.group(1)!) ?? 12;
+    return _roundInputBorders(_clone(current), radius);
+  }
+
+  // Remove the last item
+  if (RegExp(r'^Remove the last item$', caseSensitive: false).hasMatch(p)) {
+    return _removeLastChild(_clone(current));
+  }
+
+  // Add a X widget before/after Y widget
+  final addMatch = RegExp(r'^Add a\s+(\w+)\s+widget\s+(before|after)\s+(\w+)\s+widget$', caseSensitive: false).firstMatch(p);
+  if (addMatch != null) {
+    final newType = addMatch.group(1)!.toLowerCase();
+    final pos = addMatch.group(2)!.toLowerCase();
+    final anchor = addMatch.group(3)!.toLowerCase();
+    return _addWidgetRelative(_clone(current), newType, anchor, pos);
+  }
+
+  // Change the image fit to X
+  final fitMatch = RegExp(r'^Change the image fit to\s+(\w+)$', caseSensitive: false).firstMatch(p);
+  if (fitMatch != null) {
+    final fit = fitMatch.group(1)!.toLowerCase();
+    return _changeImageFit(_clone(current), fit);
+  }
+
+  // Change the image size to WxH
+  final sizeMatch = RegExp(r'^Change the image size to\s*(\d+)x(\d+)$', caseSensitive: false).firstMatch(p);
+  if (sizeMatch != null) {
+    final w = double.tryParse(sizeMatch.group(1)!);
+    final h = double.tryParse(sizeMatch.group(2)!);
+    return _changeImageSize(_clone(current), w, h);
+  }
+
+  // Change the fontfamily to Name
+  final fontMatch = RegExp(r'^Change the fontfamily to\s+(.+)$', caseSensitive: false).firstMatch(p);
+  if (fontMatch != null) {
+    final family = fontMatch.group(1)!.trim();
+    return _changeFontFamily(_clone(current), family);
+  }
+
+  return null;
+}
+
+Map<String, dynamic> _clone(Map<String, dynamic> src) => Map<String, dynamic>.from(src);
+
+Map<String, dynamic> _setBackgroundColor(Map<String, dynamic> node, String color) {
+  void visit(Map<String, dynamic> n) {
+    final props = (n['props'] as Map?)?.cast<String, dynamic>();
+    if (n['type'] == 'container') {
+      final deco = (props?['decoration'] as Map?) ?? <String, dynamic>{};
+      deco['color'] = color;
+      props?['decoration'] = deco;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+  visit(node);
+  return node;
+}
+
+Map<String, dynamic> _roundInputBorders(Map<String, dynamic> node, double radius) {
+  void visit(Map<String, dynamic> n) {
+    if (n['type'] == 'textField') {
+      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      props['borderRadius'] = radius;
+      n['props'] = props;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+  visit(node);
+  return node;
+}
+
+Map<String, dynamic> _addWidgetRelative(Map<String, dynamic> node, String newType, String anchorType, String pos) {
+  bool inserted = false;
+  List<dynamic>? tryInsert(List<dynamic>? list) {
+    if (list == null) return null;
+    for (int i = 0; i < list.length; i++) {
+      final item = list[i];
+      if (item is Map && (item['type'] as String?)?.toLowerCase() == anchorType) {
+        final toAdd = _defaultWidgetForType(newType);
+        if (toAdd == null) return list;
+        final idx = pos == 'before' ? i : i + 1;
+        list.insert(idx, toAdd);
+        inserted = true;
+        return list;
+      }
+    }
+    return list;
+  }
+
+  void visit(Map<String, dynamic> n) {
+    if (inserted) return;
+    final children = (n['children'] as List?)?.cast<dynamic>();
+    if (children != null) {
+      final updated = tryInsert(children);
+      if (inserted) return;
+      for (final c in children.whereType<Map>()) {
+        visit(c.cast<String, dynamic>());
+        if (inserted) return;
+      }
+      if (updated != null) n['children'] = updated;
+    }
+  }
+
+  visit(node);
+  return node;
+}
+
+Map<String, dynamic>? _defaultWidgetForType(String t) {
+  switch (t) {
+    case 'text':
+      return {
+        'type': 'text',
+        'props': {'value': 'New text', 'size': 14}
+      };
+    case 'icon':
+      return {
+        'type': 'icon',
+        'props': {'icon': 'add', 'size': 20}
+      };
+    case 'image':
+      return {
+        'type': 'image',
+        'props': {
+          'url': 'https://picsum.photos/seed/new/100/60',
+          'fit': 'cover',
+          'height': 60
+        }
+      };
+    case 'sizedbox':
+    case 'sized_box':
+      return {
+        'type': 'sizedBox',
+        'props': {'height': 8}
+      };
+    case 'elevatedbutton':
+    case 'elevated_button':
+      return {
+        'type': 'elevatedButton',
+        'props': {'label': 'Action'}
+      };
+    default:
+      return null;
+  }
+}
+
+Map<String, dynamic> _changeImageFit(Map<String, dynamic> node, String fit) {
+  void visit(Map<String, dynamic> n) {
+    if (n['type'] == 'image') {
+      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      props['fit'] = fit;
+      n['props'] = props;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+  visit(node);
+  return node;
+}
+
+Map<String, dynamic> _changeImageSize(Map<String, dynamic> node, double? w, double? h) {
+  void visit(Map<String, dynamic> n) {
+    if (n['type'] == 'image') {
+      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      if (w != null) props['width'] = w;
+      if (h != null) props['height'] = h;
+      n['props'] = props;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+  visit(node);
+  return node;
+}
+
+Map<String, dynamic> _changeFontFamily(Map<String, dynamic> node, String family) {
+  void visit(Map<String, dynamic> n) {
+    if (n['type'] == 'text') {
+      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      props['fontFamily'] = family;
+      n['props'] = props;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+  visit(node);
+  return node;
+}
+
+Map<String, dynamic> _updateBorderRadius(Map<String, dynamic> node, double radius) {
+  final map = Map<String, dynamic>.from(node);
+  void visit(Map<String, dynamic> n) {
+    final props = (n['props'] as Map?)?.cast<String, dynamic>();
+    if (n['type'] == 'container') {
+      final deco = (props?['decoration'] as Map?) ?? <String, dynamic>{};
+      deco['borderRadius'] = {'all': radius};
+      props?['decoration'] = deco;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+  visit(map);
+  return map;
+}
+
+Map<String, dynamic> _recolorPrimary(Map<String, dynamic> node, String color) {
+  final map = Map<String, dynamic>.from(node);
+  void visit(Map<String, dynamic> n) {
+    final props = (n['props'] as Map?)?.cast<String, dynamic>();
+    if (n['type'] == 'elevatedButton') {
+      final style = (props?['style'] as Map?) ?? <String, dynamic>{};
+      style['backgroundColor'] = color;
+      props?['style'] = style;
+    }
+    if (n['type'] == 'icon') {
+      props?['color'] = color;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+    }
+  }
+  visit(map);
+  return map;
+}
+
+Map<String, dynamic> _replaceFirstText(Map<String, dynamic> node, String fontFamily, double size) {
+  final map = Map<String, dynamic>.from(node);
+  bool replaced = false;
+  void visit(Map<String, dynamic> n) {
+    if (replaced) return;
+    if (n['type'] == 'text') {
+      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      props['fontFamily'] = fontFamily;
+      props['size'] = size;
+      n['props'] = props;
+      replaced = true;
+      return;
+    }
+    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
+    for (final c in children.whereType<Map>()) {
+      visit(c.cast<String, dynamic>());
+      if (replaced) break;
+    }
+  }
+  visit(map);
+  return map;
+}
+
+Map<String, dynamic> _removeLastChild(Map<String, dynamic> node) {
+  final map = Map<String, dynamic>.from(node);
+  void visit(Map<String, dynamic> n) {
+    final list = (n['children'] as List?)?.cast<dynamic>();
+    if (list != null && list.isNotEmpty) {
+      list.removeLast();
+      n['children'] = list;
+    }
+  }
+  visit(map);
+  return map;
+}
+
+Map<String, dynamic> _addFooterNote(Map<String, dynamic> node) {
+  final map = Map<String, dynamic>.from(node);
+  final children = (map['children'] as List?)?.cast<dynamic>() ?? <dynamic>[];
+  children.add({
+    'type': 'text',
+    'props': {
+      'value': 'Generated by Dynamic UI',
+      'size': 12,
+      'align': 'center',
+      'fontFamily': 'Inter'
+    }
+  });
+  map['children'] = children;
+  return map;
 }
 
 Map<String, dynamic> _loginScreen() => {
