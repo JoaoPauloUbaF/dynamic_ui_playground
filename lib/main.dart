@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dynamic_ui/presentation/widgets/dynamic_ui_builder.dart';
 import 'features/dynamic_ui/presentation/view_model/dynamic_ui_view_model.dart';
+import 'features/dynamic_ui/domain/providers/ui_json_provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -22,30 +24,54 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends ConsumerWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vm = DynamicUiViewModel.instance..attach(ref);
+    final asyncJson = vm.watchJson();
 
-class _MyHomePageState extends State<MyHomePage> {
-  final DynamicUiController _controller = DynamicUiController();
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(title),
+        actions: [
+          IconButton(
+            tooltip: 'Reset',
+            icon: const Icon(Icons.refresh),
+            onPressed: vm.resetToDefault,
+          ),
+        ],
       ),
-      body: Center(child: DynamicUiBuilder(json: _controller.json)),
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: asyncJson.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, st) {
+            // Brief error message + rollback to last valid JSON
+            final fallback = vm.lastValidOrDefault;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Load error, showing last saved UI', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 8),
+                Expanded(child: Center(child: DynamicUiBuilder(json: fallback))),
+              ],
+            );
+          },
+          data: (json) => Center(child: DynamicUiBuilder(json: json)),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Voice input',
-        child: const Icon(Icons.mic),
+        onPressed: () {
+          // Simulate a refresh to fetch new JSON
+          ref.read(dynamicUiJsonProvider.notifier).refreshFromServer();
+        },
+        tooltip: 'Fetch JSON',
+        child: const Icon(Icons.cloud_download),
       ),
     );
   }
