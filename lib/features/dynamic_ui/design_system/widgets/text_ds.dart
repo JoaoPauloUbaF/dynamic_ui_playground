@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:dynamic_ui_playground/core/design_system/base_ds.dart';
-import 'package:dynamic_ui_playground/features/dynamic_ui/utils/common_props.dart';
-import 'package:dynamic_ui_playground/core/design_system/ds_helpers.dart';
+import '../base_ds.dart';
+import '../../utils/common_props.dart';
+import '../ds_helpers.dart';
 
 class TextDS extends BaseDS<Text> {
   TextDS({required this.value, this.color, this.size, this.align});

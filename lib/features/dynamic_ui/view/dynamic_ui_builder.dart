@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dynamic_ui_playground/core/design_system/widgets_ds.dart';
+import '../../dynamic_ui/design_system/widgets_ds.dart';
 
 /// Builds a widget tree recursively from a JSON node using DS widgets.
 class DynamicUiBuilder extends StatelessWidget {

@@ -1,11 +1,16 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 
-// Expose a default JSON for initialization from providers
+/// Holds the current dynamic UI JSON and exposes updates.
 class DynamicUiController {
-  static Map<String, dynamic> get defaultJson => {
+  DynamicUiController({Map<String, dynamic>? initialJson})
+    : _json = initialJson ?? _defaultJson;
+
+  Map<String, dynamic> _json;
+
+  static Map<String, dynamic> get _defaultJson => {
     'type': 'container',
     'props': {
-      'color': 'transparent',
+      'color': 'red',
       'padding': {'all': 12},
     },
     'children': [
@@ -103,9 +108,12 @@ class DynamicUiController {
       },
     ],
   };
-}
 
-// Provider that exposes the current JSON state
-final dynamicUiControllerProvider = StateProvider<Map<String, dynamic>>((ref) {
-  return DynamicUiController.defaultJson;
-});
+  Map<String, dynamic> get json => _json;
+
+  set json(Map<String, dynamic> value) {
+    _json = value;
+  }
+
+  String get jsonPretty => const JsonEncoder.withIndent('  ').convert(_json);
+}
