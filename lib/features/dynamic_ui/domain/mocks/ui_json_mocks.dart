@@ -26,7 +26,8 @@ Map<String, dynamic>? getCreateMockForPrompt(String prompt) {
 
 // Update suggestions and mocks
 const List<String> kDefaultUpdateSuggestions = [
-  'Change the background color to #FFF2F2F2',
+  'Change the background color to #3d2d01',
+  'Change the fontfamily to Open Sans',
   'Round the input borders by 20',
   'Remove the last item',
   'Add a text widget after image widget',
@@ -34,7 +35,10 @@ const List<String> kDefaultUpdateSuggestions = [
 ];
 
 /// Build context-aware update suggestions based on the current JSON.
-List<String> getUpdateSuggestionsForJson(Map<String, dynamic> current, {int max = 5}) {
+List<String> getUpdateSuggestionsForJson(
+  Map<String, dynamic> current, {
+  int max = 5,
+}) {
   bool hasImage = false;
   bool hasTextField = false;
   bool hasContainer = false;
@@ -48,9 +52,11 @@ List<String> getUpdateSuggestionsForJson(Map<String, dynamic> current, {int max 
     if (t == 'textfield' || t == 'text_field') hasTextField = true;
     if (t == 'container') hasContainer = true;
     if (t == 'text') hasText = true;
-    final children = (n['children'] as List?)?.whereType<Map>() ?? const Iterable<Map>.empty();
+    final children =
+        (n['children'] as List?)?.whereType<Map>() ??
+        const Iterable<Map>.empty();
     for (final c in children) {
-      visit(c.cast<String, dynamic>());
+      visit(c.cast<String, Object?>());
     }
   }
 
@@ -61,7 +67,7 @@ List<String> getUpdateSuggestionsForJson(Map<String, dynamic> current, {int max 
   suggestions.add('Remove the last item');
 
   if (hasContainer) {
-    suggestions.add('Change the background color to #FFF2F2F2');
+    suggestions.add('Change the background color to #3d2d01');
   }
   if (hasTextField) {
     suggestions.add('Round the input borders by 20');
@@ -71,7 +77,7 @@ List<String> getUpdateSuggestionsForJson(Map<String, dynamic> current, {int max 
     suggestions.add('Change the image size to 300x180');
   }
   if (hasText) {
-    suggestions.add('Change the fontfamily to Roboto');
+    suggestions.add('Change the fontfamily to Bebas Neue');
   }
 
   // Relative insert: try to anchor to an existing type
@@ -88,19 +94,28 @@ List<String> getUpdateSuggestionsForJson(Map<String, dynamic> current, {int max 
   return deduped.take(max).toList();
 }
 
-Map<String, dynamic>? getUpdateMockForPrompt(String prompt, Map<String, dynamic> current) {
+Map<String, dynamic>? getUpdateMockForPrompt(
+  String prompt,
+  Map<String, dynamic> current,
+) {
   // Normalize
   final p = prompt.trim();
 
   // Change background color
-  final bgMatch = RegExp(r'^Change the background color to\s+([#A-Za-z0-9]+)$', caseSensitive: false).firstMatch(p);
+  final bgMatch = RegExp(
+    r'^Change the background color to\s+([#A-Za-z0-9]+)$',
+    caseSensitive: false,
+  ).firstMatch(p);
   if (bgMatch != null) {
     final color = bgMatch.group(1)!;
     return _setBackgroundColor(_clone(current), color);
   }
 
   // Round input borders by N
-  final roundMatch = RegExp(r'^Round (?:the )?input borders by\s+(\d+)$', caseSensitive: false).firstMatch(p);
+  final roundMatch = RegExp(
+    r'^Round (?:the )?input borders by\s+(\d+)$',
+    caseSensitive: false,
+  ).firstMatch(p);
   if (roundMatch != null) {
     final radius = double.tryParse(roundMatch.group(1)!) ?? 12;
     return _roundInputBorders(_clone(current), radius);
@@ -112,7 +127,10 @@ Map<String, dynamic>? getUpdateMockForPrompt(String prompt, Map<String, dynamic>
   }
 
   // Add a X widget before/after Y widget
-  final addMatch = RegExp(r'^Add a\s+(\w+)\s+widget\s+(before|after)\s+(\w+)\s+widget$', caseSensitive: false).firstMatch(p);
+  final addMatch = RegExp(
+    r'^Add a\s+(\w+)\s+widget\s+(before|after)\s+(\w+)\s+widget$',
+    caseSensitive: false,
+  ).firstMatch(p);
   if (addMatch != null) {
     final newType = addMatch.group(1)!.toLowerCase();
     final pos = addMatch.group(2)!.toLowerCase();
@@ -121,14 +139,20 @@ Map<String, dynamic>? getUpdateMockForPrompt(String prompt, Map<String, dynamic>
   }
 
   // Change the image fit to X
-  final fitMatch = RegExp(r'^Change the image fit to\s+(\w+)$', caseSensitive: false).firstMatch(p);
+  final fitMatch = RegExp(
+    r'^Change the image fit to\s+(\w+)$',
+    caseSensitive: false,
+  ).firstMatch(p);
   if (fitMatch != null) {
     final fit = fitMatch.group(1)!.toLowerCase();
     return _changeImageFit(_clone(current), fit);
   }
 
   // Change the image size to WxH
-  final sizeMatch = RegExp(r'^Change the image size to\s*(\d+)x(\d+)$', caseSensitive: false).firstMatch(p);
+  final sizeMatch = RegExp(
+    r'^Change the image size to\s*(\d+)x(\d+)$',
+    caseSensitive: false,
+  ).firstMatch(p);
   if (sizeMatch != null) {
     final w = double.tryParse(sizeMatch.group(1)!);
     final h = double.tryParse(sizeMatch.group(2)!);
@@ -136,7 +160,10 @@ Map<String, dynamic>? getUpdateMockForPrompt(String prompt, Map<String, dynamic>
   }
 
   // Change the fontfamily to Name
-  final fontMatch = RegExp(r'^Change the fontfamily to\s+(.+)$', caseSensitive: false).firstMatch(p);
+  final fontMatch = RegExp(
+    r'^Change the fontfamily to\s+(.+)$',
+    caseSensitive: false,
+  ).firstMatch(p);
   if (fontMatch != null) {
     final family = fontMatch.group(1)!.trim();
     return _changeFontFamily(_clone(current), family);
@@ -145,48 +172,86 @@ Map<String, dynamic>? getUpdateMockForPrompt(String prompt, Map<String, dynamic>
   return null;
 }
 
-Map<String, dynamic> _clone(Map<String, dynamic> src) => Map<String, dynamic>.from(src);
-
-Map<String, dynamic> _setBackgroundColor(Map<String, dynamic> node, String color) {
-  void visit(Map<String, dynamic> n) {
-    final props = (n['props'] as Map?)?.cast<String, dynamic>();
-    if (n['type'] == 'container') {
-      final deco = (props?['decoration'] as Map?) ?? <String, dynamic>{};
-      deco['color'] = color;
-      props?['decoration'] = deco;
+Map<String, dynamic> _clone(Map<String, dynamic> src) {
+  Map<String, dynamic> newMap = {};
+  src.forEach((key, value) {
+    if (value is Map) {
+      newMap[key] = _clone(value.cast<String, dynamic>());
+    } else if (value is List) {
+      newMap[key] = _cloneList(value);
+    } else {
+      newMap[key] = value;
     }
-    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
-    for (final c in children.whereType<Map>()) {
-      visit(c.cast<String, dynamic>());
+  });
+  return newMap;
+}
+
+List<dynamic> _cloneList(List<dynamic> srcList) {
+  List<dynamic> newList = [];
+  for (var item in srcList) {
+    if (item is Map) {
+      newList.add(_clone(item.cast<String, dynamic>()));
+    } else if (item is List) {
+      newList.add(_cloneList(item));
+    } else {
+      newList.add(item);
     }
   }
-  visit(node);
+  return newList;
+}
+
+Map<String, dynamic> _setBackgroundColor(
+  Map<String, dynamic> node,
+  String color,
+) {
+  if (node['type'] == 'container') {
+    final props =
+        (node['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+    final deco =
+        (props['decoration'] as Map?)?.cast<String, dynamic>() ??
+        <String, dynamic>{};
+    deco['color'] = color;
+    props['decoration'] = deco;
+    node['props'] = props;
+  }
   return node;
 }
 
-Map<String, dynamic> _roundInputBorders(Map<String, dynamic> node, double radius) {
+Map<String, dynamic> _roundInputBorders(
+  Map<String, dynamic> node,
+  double radius,
+) {
   void visit(Map<String, dynamic> n) {
     if (n['type'] == 'textField') {
-      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      final props =
+          (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
       props['borderRadius'] = radius;
       n['props'] = props;
     }
     final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
     for (final c in children.whereType<Map>()) {
-      visit(c.cast<String, dynamic>());
+      visit(c.cast<String, Object?>());
     }
   }
+
   visit(node);
   return node;
 }
 
-Map<String, dynamic> _addWidgetRelative(Map<String, dynamic> node, String newType, String anchorType, String pos) {
+Map<String, dynamic> _addWidgetRelative(
+  Map<String, dynamic> node,
+  String newType,
+  String anchorType,
+  String pos,
+) {
   bool inserted = false;
+
   List<dynamic>? tryInsert(List<dynamic>? list) {
     if (list == null) return null;
     for (int i = 0; i < list.length; i++) {
       final item = list[i];
-      if (item is Map && (item['type'] as String?)?.toLowerCase() == anchorType) {
+      if (item is Map &&
+          (item['type'] as String?)?.toLowerCase() == anchorType) {
         final toAdd = _defaultWidgetForType(newType);
         if (toAdd == null) return list;
         final idx = pos == 'before' ? i : i + 1;
@@ -205,7 +270,7 @@ Map<String, dynamic> _addWidgetRelative(Map<String, dynamic> node, String newTyp
       final updated = tryInsert(children);
       if (inserted) return;
       for (final c in children.whereType<Map>()) {
-        visit(c.cast<String, dynamic>());
+        visit(c.cast<String, Object?>());
         if (inserted) return;
       }
       if (updated != null) n['children'] = updated;
@@ -216,38 +281,38 @@ Map<String, dynamic> _addWidgetRelative(Map<String, dynamic> node, String newTyp
   return node;
 }
 
-Map<String, dynamic>? _defaultWidgetForType(String t) {
+Map<String, Object>? _defaultWidgetForType(String t) {
   switch (t) {
     case 'text':
-      return {
+      return <String, Object>{
         'type': 'text',
-        'props': {'value': 'New text', 'size': 14}
+        'props': <String, Object>{'value': 'New text', 'size': 14},
       };
     case 'icon':
-      return {
+      return <String, Object>{
         'type': 'icon',
-        'props': {'icon': 'add', 'size': 20}
+        'props': <String, Object>{'icon': 'add', 'size': 20},
       };
     case 'image':
-      return {
+      return <String, Object>{
         'type': 'image',
-        'props': {
+        'props': <String, Object>{
           'url': 'https://picsum.photos/seed/new/100/60',
           'fit': 'cover',
-          'height': 60
-        }
+          'height': 60,
+        },
       };
     case 'sizedbox':
     case 'sized_box':
-      return {
+      return <String, Object>{
         'type': 'sizedBox',
-        'props': {'height': 8}
+        'props': <String, Object>{'height': 8},
       };
     case 'elevatedbutton':
     case 'elevated_button':
-      return {
+      return <String, Object>{
         'type': 'elevatedButton',
-        'props': {'label': 'Action'}
+        'props': <String, Object>{'label': 'Action'},
       };
     default:
       return null;
@@ -257,53 +322,67 @@ Map<String, dynamic>? _defaultWidgetForType(String t) {
 Map<String, dynamic> _changeImageFit(Map<String, dynamic> node, String fit) {
   void visit(Map<String, dynamic> n) {
     if (n['type'] == 'image') {
-      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      final props =
+          (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
       props['fit'] = fit;
       n['props'] = props;
     }
     final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
     for (final c in children.whereType<Map>()) {
-      visit(c.cast<String, dynamic>());
+      visit(c.cast<String, Object?>());
     }
   }
+
   visit(node);
   return node;
 }
 
-Map<String, dynamic> _changeImageSize(Map<String, dynamic> node, double? w, double? h) {
+Map<String, dynamic> _changeImageSize(
+  Map<String, dynamic> node,
+  double? w,
+  double? h,
+) {
   void visit(Map<String, dynamic> n) {
     if (n['type'] == 'image') {
-      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      final props =
+          (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
       if (w != null) props['width'] = w;
       if (h != null) props['height'] = h;
       n['props'] = props;
     }
     final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
     for (final c in children.whereType<Map>()) {
-      visit(c.cast<String, dynamic>());
+      visit(c.cast<String, Object?>());
     }
   }
+
   visit(node);
   return node;
 }
 
-Map<String, dynamic> _changeFontFamily(Map<String, dynamic> node, String family) {
-  void visit(Map<String, dynamic> n) {
-    if (n['type'] == 'text') {
-      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
-      props['fontFamily'] = family;
-      n['props'] = props;
-    }
-    final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
-    for (final c in children.whereType<Map>()) {
-      visit(c.cast<String, dynamic>());
-    }
+Map<String, dynamic> _changeFontFamily(
+  Map<String, dynamic> node,
+  String family,
+) {
+  if (node['type'] == 'text') {
+    final props =
+        (node['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+    props['fontFamily'] = family;
+    node['props'] = props;
   }
-  visit(node);
+
+  final children = (node['children'] as List?)?.cast<dynamic>() ?? const [];
+  for (final c in children.whereType<Map>()) {
+    _changeFontFamily(c.cast<String, Object?>(), family);
+  }
+
   return node;
 }
 
-Map<String, dynamic> _updateBorderRadius(Map<String, dynamic> node, double radius) {
+Map<String, dynamic> _updateBorderRadius(
+  Map<String, dynamic> node,
+  double radius,
+) {
   final map = Map<String, dynamic>.from(node);
   void visit(Map<String, dynamic> n) {
     final props = (n['props'] as Map?)?.cast<String, dynamic>();
@@ -314,9 +393,10 @@ Map<String, dynamic> _updateBorderRadius(Map<String, dynamic> node, double radiu
     }
     final children = (n['children'] as List?)?.cast<dynamic>() ?? const [];
     for (final c in children.whereType<Map>()) {
-      visit(c.cast<String, dynamic>());
+      visit(c.cast<String, Object?>());
     }
   }
+
   visit(map);
   return map;
 }
@@ -338,17 +418,23 @@ Map<String, dynamic> _recolorPrimary(Map<String, dynamic> node, String color) {
       visit(c.cast<String, dynamic>());
     }
   }
+
   visit(map);
   return map;
 }
 
-Map<String, dynamic> _replaceFirstText(Map<String, dynamic> node, String fontFamily, double size) {
+Map<String, dynamic> _replaceFirstText(
+  Map<String, dynamic> node,
+  String fontFamily,
+  double size,
+) {
   final map = Map<String, dynamic>.from(node);
   bool replaced = false;
   void visit(Map<String, dynamic> n) {
     if (replaced) return;
     if (n['type'] == 'text') {
-      final props = (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      final props =
+          (n['props'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
       props['fontFamily'] = fontFamily;
       props['size'] = size;
       n['props'] = props;
@@ -361,6 +447,7 @@ Map<String, dynamic> _replaceFirstText(Map<String, dynamic> node, String fontFam
       if (replaced) break;
     }
   }
+
   visit(map);
   return map;
 }
@@ -368,12 +455,19 @@ Map<String, dynamic> _replaceFirstText(Map<String, dynamic> node, String fontFam
 Map<String, dynamic> _removeLastChild(Map<String, dynamic> node) {
   final map = Map<String, dynamic>.from(node);
   void visit(Map<String, dynamic> n) {
-    final list = (n['children'] as List?)?.cast<dynamic>();
+    final list = (n['children'] as List?)?.cast<dynamic>().toList();
     if (list != null && list.isNotEmpty) {
+      if (list.first is Map && (list.first as Map)['children'].length > 1) {
+        list.first['children'].removeLast();
+        n['children'] = list;
+        return;
+      }
+
       list.removeLast();
       n['children'] = list;
     }
   }
+
   visit(map);
   return map;
 }
@@ -387,8 +481,8 @@ Map<String, dynamic> _addFooterNote(Map<String, dynamic> node) {
       'value': 'Generated by Dynamic UI',
       'size': 12,
       'align': 'center',
-      'fontFamily': 'Inter'
-    }
+      'fontFamily': 'Inter',
+    },
   });
   map['children'] = children;
   return map;
@@ -427,15 +521,21 @@ Map<String, dynamic> _loginScreen() => {
           },
         },
         {
-          'type': 'elevatedButton',
-          'props': {
-            'label': 'Sign In',
-            'style': {
-              'backgroundColor': '#FF6200EE',
-              'padding': {'all': 12},
-              'borderRadius': 12,
+          'type': 'sizedBox',
+          'props': {'width': 250},
+          'children': [
+            {
+              'type': 'elevatedButton',
+              'props': {
+                'label': 'Sign In',
+                'style': {
+                  'backgroundColor': '#FF6200EE',
+                  'padding': {'all': 12},
+                  'borderRadius': 12,
+                },
+              },
             },
-          },
+          ],
         },
       ],
     },

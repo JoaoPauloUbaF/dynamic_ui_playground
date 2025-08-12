@@ -81,6 +81,19 @@ TextAlign? stringToTextAlign(dynamic s) {
   }
 }
 
+TextOverflow? stringToTextOverflow(json) {
+  switch (json) {
+    case 'clip':
+      return TextOverflow.clip;
+    case 'ellipsis':
+      return TextOverflow.ellipsis;
+    case 'fade':
+      return TextOverflow.fade;
+    default:
+      return null;
+  }
+}
+
 String textAlignToString(TextAlign v) {
   switch (v) {
     case TextAlign.center:

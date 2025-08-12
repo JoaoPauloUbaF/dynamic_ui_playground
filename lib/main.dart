@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'dynamic_ui_playground',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFC107)),
       ),
       home: const MyHomePage(title: 'Home'),
     );

@@ -16,12 +16,12 @@ class DynamicUiBuilder extends StatelessWidget {
 
 Widget _buildFromJson(Map<String, dynamic> node) {
   final type = (node['type'] as String?)?.toLowerCase() ?? 'unknown';
-  final props = (node['props'] as Map?)?.cast<String, dynamic>() ?? const {};
+  final props = (node['props'] as Map?)?.cast<String, Object?>() ?? const {};
   final childrenJson = (node['children'] as List?)?.cast<dynamic>() ?? const [];
 
   List<Widget> childrenWidgets = childrenJson
       .whereType<Map>()
-      .map((c) => _buildFromJson(c.cast<String, dynamic>()))
+      .map((c) => _buildFromJson(c.cast<String, Object?>()))
       .toList();
 
   // Optional wrapper handling for flex and scroll
@@ -56,6 +56,7 @@ Widget _buildFromJson(Map<String, dynamic> node) {
           ? childrenWidgets.first
           : null;
       return ContainerDS.fromJson(props, child).build();
+    case 'sizedbox':
     case 'sized_box':
       final Widget? child = childrenWidgets.isNotEmpty
           ? childrenWidgets.first
@@ -67,8 +68,10 @@ Widget _buildFromJson(Map<String, dynamic> node) {
       return IconDS.fromJson(props).build();
     case 'image':
       return ImageDS.fromJson(props).build();
+    case 'elevatedbutton':
     case 'elevated_button':
       return ElevatedButtonDS.fromJson(props).build();
+    case 'textfield':
     case 'text_field':
       return TextFieldDS.fromJson(props).build();
     default:
