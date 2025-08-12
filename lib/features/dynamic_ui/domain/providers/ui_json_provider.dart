@@ -22,7 +22,7 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
         {
           'type': 'container',
           'props': {
-            'decoration': {'color': '#FF6200EE'},
+            'decoration': {'color': '#FFFFB100'},
             'padding': {'all': 24},
             'alignment': 'center',
           },
@@ -252,7 +252,7 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
             'url':
                 'https://docs.flutter.dev/assets/images/dash/dash-fainting.gif',
             'fit': 'contain',
-            'height': 80,
+            'height': 150,
           },
         },
 
