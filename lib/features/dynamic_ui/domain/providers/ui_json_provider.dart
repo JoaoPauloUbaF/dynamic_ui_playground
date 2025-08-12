@@ -252,7 +252,7 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
             'url':
                 'https://docs.flutter.dev/assets/images/dash/dash-fainting.gif',
             'fit': 'contain',
-            'height': 48,
+            'height': 80,
           },
         },
 
@@ -271,7 +271,7 @@ class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
   FutureOr<Map<String, dynamic>> build() async {
     // Simulate network delay
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 1000));
     // Return default initially
     return kDefaultDynamicUiJson;
   }

@@ -54,7 +54,7 @@ class _DynamicInputBottomSheetState extends State<DynamicInputBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final bottom = MediaQuery.of(context).viewInsets.bottom + 16;
     return Padding(
       padding: EdgeInsets.only(bottom: bottom),
       child: Container(
@@ -107,6 +107,7 @@ class _DynamicInputBottomSheetState extends State<DynamicInputBottomSheet> {
                       controller: _controller,
                       decoration: const InputDecoration(
                         hintText: 'Type a prompt...',
+                        border: OutlineInputBorder(),
                       ),
                     ),
                   ),

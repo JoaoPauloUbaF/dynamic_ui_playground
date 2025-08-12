@@ -39,6 +39,10 @@ Widget _buildFromJson(Map<String, dynamic> node) {
       final child = kids.isNotEmpty ? kids.first : const SizedBox.shrink();
       return ScrollDS.fromJson(props, child).build();
     }
+    if (t == 'padding') {
+      final child = kids.isNotEmpty ? kids.first : const SizedBox.shrink();
+      return PaddingDS.fromJson(props, child).build();
+    }
     return const SizedBox.shrink();
   }
 
@@ -50,6 +54,7 @@ Widget _buildFromJson(Map<String, dynamic> node) {
     case 'expanded':
     case 'flexible':
     case 'scroll':
+    case 'padding':
       return wrapIfNeeded(type, props, childrenWidgets);
     case 'container':
       final Widget? child = childrenWidgets.isNotEmpty
@@ -68,6 +73,8 @@ Widget _buildFromJson(Map<String, dynamic> node) {
       return IconDS.fromJson(props).build();
     case 'image':
       return ImageDS.fromJson(props).build();
+    case 'checkbox':
+      return CheckboxDS.fromJson(props).build();
     case 'elevatedbutton':
     case 'elevated_button':
       return ElevatedButtonDS.fromJson(props).build();

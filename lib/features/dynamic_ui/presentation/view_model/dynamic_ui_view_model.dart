@@ -19,6 +19,7 @@ class DynamicUiViewModel {
     if (ref == null) {
       return const AsyncValue.data(kDefaultDynamicUiJson);
     }
+
     final value = ref.watch(dynamicUiJsonProvider);
     // Update last valid if data
     value.whenData((data) => _lastValid = data);
@@ -26,7 +27,8 @@ class DynamicUiViewModel {
   }
 
   /// Returns last valid JSON or the default one if none yet.
-  Map<String, dynamic> get lastValidOrDefault => _lastValid ?? kDefaultDynamicUiJson;
+  Map<String, dynamic> get lastValidOrDefault =>
+      _lastValid ?? kDefaultDynamicUiJson;
 
   /// Trigger a refresh (simulated fetch).
   Future<void> refresh() async {
