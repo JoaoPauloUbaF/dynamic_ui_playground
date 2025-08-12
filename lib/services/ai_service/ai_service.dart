@@ -1,4 +1,15 @@
 abstract class AiService {
+  /// Create an initial UI JSON from a natural language text description.
+  Future<Map<String, dynamic>> createUiFromText({
+    required String prompt,
+  });
+
+  /// Create an initial UI JSON from a spoken (audio) description.
+  Future<Map<String, dynamic>> createUiFromAudio({
+    required String prompt,
+    Duration captureDuration = const Duration(seconds: 6),
+  });
+
   /// Update an existing UI JSON given a natural language text instruction.
   Future<Map<String, dynamic>> updateUiFromText({
     required String prompt,

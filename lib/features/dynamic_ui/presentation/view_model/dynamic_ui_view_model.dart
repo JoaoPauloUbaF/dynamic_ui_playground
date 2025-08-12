@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dynamic_ui_playground/services/ai_service/ai_service_provider.dart';
 import 'package:dynamic_ui_playground/services/ai_service/ai_service.dart';
@@ -49,6 +48,37 @@ class DynamicUiViewModel {
 
   AiService? get _ai => _ref?.read(aiServiceProvider);
 
+  // CREATE flows
+  Future<void> applyCreateText(String prompt) async {
+    final ref = _ref;
+    final ai = _ai;
+    if (ref == null || ai == null) return;
+    ref.read(dynamicUiJsonProvider.notifier).state = const AsyncLoading();
+    try {
+      final created = await ai.createUiFromText(prompt: prompt);
+      ref.read(dynamicUiJsonProvider.notifier).applyJson(created);
+    } catch (e) {
+      // fallback to last valid and rethrow for UI handling
+      ref.read(dynamicUiJsonProvider.notifier).applyJson(lastValidOrDefault);
+      rethrow;
+    }
+  }
+
+  Future<void> applyCreateAudio(String prompt) async {
+    final ref = _ref;
+    final ai = _ai;
+    if (ref == null || ai == null) return;
+    ref.read(dynamicUiJsonProvider.notifier).state = const AsyncLoading();
+    try {
+      final created = await ai.createUiFromAudio(prompt: prompt);
+      ref.read(dynamicUiJsonProvider.notifier).applyJson(created);
+    } catch (e) {
+      ref.read(dynamicUiJsonProvider.notifier).applyJson(lastValidOrDefault);
+      rethrow;
+    }
+  }
+
+  // UPDATE flows
   /// Apply a text prompt via the AI service and update the provider.
   Future<void> applyTextPrompt(String prompt) async {
     final ref = _ref;
@@ -64,9 +94,9 @@ class DynamicUiViewModel {
       );
       ref.read(dynamicUiJsonProvider.notifier).applyJson(updated);
     } catch (e) {
-      // on error, restore last valid
-      debugPrint(e.toString());
+      // on error, restore last valid and bubble up
       ref.read(dynamicUiJsonProvider.notifier).applyJson(current);
+      rethrow;
     }
   }
 
@@ -83,8 +113,9 @@ class DynamicUiViewModel {
         currentJson: current,
       );
       ref.read(dynamicUiJsonProvider.notifier).applyJson(updated);
-    } catch (_) {
+    } catch (e) {
       ref.read(dynamicUiJsonProvider.notifier).applyJson(current);
+      rethrow;
     }
   }
 }

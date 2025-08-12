@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dynamic_ui_playground/services/ai_service/ai_prompts.dart';
 import 'package:dynamic_ui_playground/services/ai_service/ai_service.dart';
@@ -34,6 +35,69 @@ class FirebaseAiService extends AiService {
     );
   }
 
+  Map<String, dynamic> _parseJsonSafely(String raw) {
+    // Strip markdown fences and language hints
+    var text = raw.replaceAll('```', '');
+    text = text.replaceAll(RegExp(r'^json\s*', multiLine: true), '');
+    text = text.trim();
+    // Fast path
+    try {
+      return json.decode(text) as Map<String, dynamic>;
+    } catch (e) {
+      // continue
+    }
+    // Try to extract the largest JSON object substring
+    final start = text.indexOf('{');
+    final end = text.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      final candidate = text.substring(start, end + 1);
+      try {
+        return json.decode(candidate) as Map<String, dynamic>;
+      } catch (e) {
+        // continue
+      }
+    }
+    // Progressive shrink from the end to find a parsable object (limited attempts)
+    if (start >= 0) {
+      for (
+        int i = text.length - 1, attempts = 0;
+        i > start && attempts < 10;
+        i--, attempts++
+      ) {
+        if (text[i] == '}' || text[i] == ']') {
+          final sub = text.substring(start, i + 1);
+          try {
+            return json.decode(sub) as Map<String, dynamic>;
+          } catch (e) {
+            // continue
+          }
+        }
+      }
+      // Attempt to balance braces/brackets if response was cut
+      final sub = text.substring(start);
+      int curlOpen = '{'.allMatches(sub).length;
+      int curlClose = '}'.allMatches(sub).length;
+      int sqOpen = '['.allMatches(sub).length;
+      int sqClose = ']'.allMatches(sub).length;
+      var builder = StringBuffer(sub);
+      while (sqOpen > sqClose) {
+        builder.write(']');
+        sqClose++;
+      }
+      while (curlOpen > curlClose) {
+        builder.write('}');
+        curlClose++;
+      }
+      final balanced = builder.toString();
+      try {
+        return json.decode(balanced) as Map<String, dynamic>;
+      } catch (e) {
+        // continue to final
+      }
+    }
+    throw FormatException('Could not parse JSON response');
+  }
+
   Future<Map<String, dynamic>> _generateJsonFromParts(List<Part> parts) async {
     if (_jsonModel == null) {
       await _ensureInitialized();
@@ -41,11 +105,11 @@ class FirebaseAiService extends AiService {
 
     try {
       final res = await _jsonModel!.generateContent([Content.multi(parts)]);
-      final text = res.text;
+      final String? text = res.text;
       if (text == null || text.isEmpty) {
         throw Exception('Empty JSON response from AI');
       }
-      return json.decode(text) as Map<String, dynamic>;
+      return _parseJsonSafely(text);
     } on FirebaseAIException catch (e) {
       log('FirebaseAIException: ${e.message}', error: e);
       if (_currentJsonModelName != _fallbackJsonModelName) {
@@ -56,10 +120,21 @@ class FirebaseAiService extends AiService {
         if (text == null || text.isEmpty) {
           throw Exception('Empty JSON response from AI (fallback)');
         }
-        return json.decode(text) as Map<String, dynamic>;
+        return _parseJsonSafely(text);
       }
       rethrow;
+    } catch (e) {
+      log('Exception: $e', error: e);
+      rethrow;
     }
+  }
+
+  @override
+  Future<Map<String, dynamic>> createUiFromText({
+    required String prompt,
+  }) async {
+    final fullPrompt = AiPrompts.initialUiPrompt(prompt: prompt);
+    return _generateJsonFromParts([TextPart(fullPrompt)]);
   }
 
   @override
@@ -72,6 +147,46 @@ class FirebaseAiService extends AiService {
       currentJson: currentJson,
     );
     return _generateJsonFromParts([TextPart(fullPrompt)]);
+  }
+
+  Future<Uint8List> _captureAudioBytes({
+    Duration captureDuration = const Duration(seconds: 6),
+  }) async {
+    final recorder = AudioRecorder();
+    if (!await recorder.hasPermission()) {
+      throw Exception('Microphone permission not granted');
+    }
+    final tempDir = Directory.systemTemp.createTempSync('ai_audio');
+    final filePath = '${tempDir.path}/prompt.m4a';
+    await recorder.start(
+      const RecordConfig(
+        encoder: AudioEncoder.aacLc,
+        bitRate: 128000,
+        sampleRate: 44100,
+      ),
+      path: filePath,
+    );
+    await Future.delayed(captureDuration);
+    final recordedPath = await recorder.stop();
+    if (recordedPath == null) {
+      throw Exception('Failed to record audio');
+    }
+    final bytes = await File(recordedPath).readAsBytes();
+    return bytes;
+  }
+
+  @override
+  Future<Map<String, dynamic>> createUiFromAudio({
+    required String prompt,
+    Duration captureDuration = const Duration(seconds: 6),
+  }) async {
+    final bytes = await _captureAudioBytes(captureDuration: captureDuration);
+    final instruction = AiPrompts.initialUiAudioPrompt(guidance: prompt);
+    final parts = <Part>[
+      TextPart(instruction),
+      InlineDataPart('audio/mp4', bytes),
+    ];
+    return _generateJsonFromParts(parts);
   }
 
   @override

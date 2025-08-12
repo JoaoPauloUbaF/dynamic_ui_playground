@@ -64,13 +64,14 @@ class MyHomePage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 8),
-              Expanded(
-                child: Center(child: DynamicUiBuilder(json: fallback)),
-              ),
+              Expanded(child: DynamicUiBuilder(json: fallback)),
             ],
           );
         },
-        data: (json) => DynamicUiBuilder(json: json),
+        data: (json) => Padding(
+          padding: const EdgeInsets.only(bottom: 120.0),
+          child: DynamicUiBuilder(json: json),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -92,12 +93,24 @@ class MyHomePage extends ConsumerWidget {
             final voice = result['voice'] == true;
             if (prompt.isNotEmpty || voice) {
               if (mode == 'create') {
-                // Try mocked create first; if no mock, fall back to AI text update over current JSON
+                // Try mocked create first; if no mock, call AI create (text/audio)
                 final json = getCreateMockForPrompt(prompt);
                 if (json != null) {
                   ref.read(dynamicUiJsonProvider.notifier).applyJson(json);
                 } else {
-                  await vm.applyTextPrompt(prompt);
+                  try {
+                    if (voice) {
+                      await vm.applyCreateAudio(prompt);
+                    } else {
+                      await vm.applyCreateText(prompt);
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to create UI: $e')),
+                      );
+                    }
+                  }
                 }
               } else {
                 // Update flow: if mocked suggestion exists, use it; else call AI.
@@ -108,10 +121,18 @@ class MyHomePage extends ConsumerWidget {
                 if (updated != null) {
                   ref.read(dynamicUiJsonProvider.notifier).applyJson(updated);
                 } else {
-                  if (voice) {
-                    await vm.applyAudioPrompt(prompt);
-                  } else {
-                    await vm.applyTextPrompt(prompt);
+                  try {
+                    if (voice) {
+                      await vm.applyAudioPrompt(prompt);
+                    } else {
+                      await vm.applyTextPrompt(prompt);
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to update UI: $e')),
+                      );
+                    }
                   }
                 }
               }
