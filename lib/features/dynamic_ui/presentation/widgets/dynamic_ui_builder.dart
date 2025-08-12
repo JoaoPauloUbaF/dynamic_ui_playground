@@ -24,17 +24,38 @@ Widget _buildFromJson(Map<String, dynamic> node) {
       .map((c) => _buildFromJson(c.cast<String, dynamic>()))
       .toList();
 
+  // Optional wrapper handling for flex and scroll
+  Widget wrapIfNeeded(String t, Map<String, dynamic> props, List<Widget> kids) {
+    // Single-child wrappers: expanded, flexible, scroll expect at most one child.
+    if (t == 'expanded') {
+      final child = kids.isNotEmpty ? kids.first : const SizedBox.shrink();
+      return ExpandedDS.fromJson(props, child).build();
+    }
+    if (t == 'flexible') {
+      final child = kids.isNotEmpty ? kids.first : const SizedBox.shrink();
+      return FlexibleDS.fromJson(props, child).build();
+    }
+    if (t == 'scroll') {
+      final child = kids.isNotEmpty ? kids.first : const SizedBox.shrink();
+      return ScrollDS.fromJson(props, child).build();
+    }
+    return const SizedBox.shrink();
+  }
+
   switch (type) {
     case 'row':
       return RowDS.fromJson(props, childrenWidgets).build();
     case 'column':
       return ColumnDS.fromJson(props, childrenWidgets).build();
+    case 'expanded':
+    case 'flexible':
+    case 'scroll':
+      return wrapIfNeeded(type, props, childrenWidgets);
     case 'container':
       final Widget? child = childrenWidgets.isNotEmpty
           ? childrenWidgets.first
           : null;
       return ContainerDS.fromJson(props, child).build();
-    case 'sizedbox':
     case 'sized_box':
       final Widget? child = childrenWidgets.isNotEmpty
           ? childrenWidgets.first
@@ -46,10 +67,8 @@ Widget _buildFromJson(Map<String, dynamic> node) {
       return IconDS.fromJson(props).build();
     case 'image':
       return ImageDS.fromJson(props).build();
-    case 'elevatedbutton':
     case 'elevated_button':
       return ElevatedButtonDS.fromJson(props).build();
-    case 'textfield':
     case 'text_field':
       return TextFieldDS.fromJson(props).build();
     default:

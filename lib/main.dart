@@ -48,32 +48,30 @@ class MyHomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: asyncJson.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) {
-            final fallback = vm.lastValidOrDefault;
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Load error, showing last saved UI',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Center(child: DynamicUiBuilder(json: fallback)),
-                ),
-              ],
-            );
-          },
-          data: (json) => Center(child: DynamicUiBuilder(json: json)),
-        ),
+      body: asyncJson.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) {
+          final fallback = vm.lastValidOrDefault;
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Load error, showing last saved UI',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Center(child: DynamicUiBuilder(json: fallback)),
+              ),
+            ],
+          );
+        },
+        data: (json) => DynamicUiBuilder(json: json),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final currentJson = ref.read(dynamicUiJsonProvider).value ?? vm.lastValidOrDefault;
+          final currentJson =
+              ref.read(dynamicUiJsonProvider).value ?? vm.lastValidOrDefault;
           final updateSugs = getUpdateSuggestionsForJson(currentJson);
           final result = await showModalBottomSheet(
             context: context,

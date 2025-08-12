@@ -7,3 +7,6 @@ export 'widgets/icon_ds.dart';
 export 'widgets/image_ds.dart';
 export 'widgets/elevated_button_ds.dart';
 export 'widgets/text_field_ds.dart';
+export 'widgets/expanded_ds.dart';
+export 'widgets/flexible_ds.dart';
+export 'widgets/scroll_ds.dart';

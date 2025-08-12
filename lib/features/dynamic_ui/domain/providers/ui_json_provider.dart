@@ -4,45 +4,261 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Default JSON used when provider is first loaded or reset.
 const Map<String, dynamic> kDefaultDynamicUiJson = {
-  'type': 'column',
-  'props': {'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'},
+  'type': 'container',
+  'props': {
+    'decoration': {'color': '#FFF'},
+    'padding': {'all': 16},
+  },
   'children': [
     {
-      'type': 'text',
+      'type': 'column',
       'props': {
-        'value': 'Dynamic UI (Async)',
-        'size': 22,
-        'align': 'center',
-        'fontFamily': 'Inter',
-      },
-    },
-    {
-      'type': 'sizedBox',
-      'props': {'height': 12},
-    },
-    {
-      'type': 'row',
-      'props': {
-        'mainAxisAlignment': 'spaceEvenly',
+        'spacing': 0,
+        'mainAxisAlignment': 'center',
         'crossAxisAlignment': 'center',
-        'spacing': 8,
       },
       'children': [
+        // Hero header
         {
-          'type': 'icon',
+          'type': 'container',
           'props': {
-            'icon': 'mic',
-            'size': 28,
-            'color': '#FF6200EE',
-            'material3': true,
-            'm3Style': 'outlined',
-            'm3Weight': 400,
-            'm3OpticalSize': 48,
+            'decoration': {'color': '#FF6200EE'},
+            'padding': {'all': 24},
+            'alignment': 'center',
+          },
+          'children': [
+            {
+              'type': 'column',
+              'props': {
+                'spacing': 8,
+                'mainAxisAlignment': 'center',
+                'crossAxisAlignment': 'center',
+              },
+              'children': [
+                {
+                  'type': 'icon',
+                  'props': {
+                    'icon': 'mic',
+                    'size': 36,
+                    'color': '#FFFFFFFF',
+                    'material3': true,
+                    'm3Style': 'outlined',
+                    'm3Weight': 700,
+                    'm3OpticalSize': 48,
+                  },
+                },
+                {
+                  'type': 'text',
+                  'props': {
+                    'value': 'Dynamic UI Playground',
+                    'size': 22,
+                    'align': 'center',
+                    'fontFamily': 'Inter',
+                    'color': '#FFFFFFFF',
+                  },
+                },
+                {
+                  'type': 'text',
+                  'props': {
+                    'value': 'Build and evolve your UI from JSON',
+                    'size': 14,
+                    'align': 'center',
+                    'color': '#FFFFFFFF',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+
+        {
+          'type': 'sizedBox',
+          'props': {'height': 12},
+        },
+
+        // Content card
+        {
+          'type': 'container',
+          'props': {
+            'decoration': {
+              'color': '#FFFFFFFF',
+              'borderRadius': {'all': 16},
+            },
+            'padding': {'all': 16},
+          },
+          'children': [
+            {
+              'type': 'column',
+              'props': {'spacing': 12},
+              'children': [
+                {
+                  'type': 'text',
+                  'props': {
+                    'value': 'How it works',
+                    'size': 18,
+                    'fontFamily': 'Inter',
+                  },
+                },
+                {
+                  'type': 'column',
+                  'props': {'spacing': 8},
+                  'children': [
+                    {
+                      'type': 'row',
+                      'props': {'spacing': 8},
+                      'children': [
+                        {
+                          'type': 'icon',
+                          'props': {'icon': 'add', 'size': 20},
+                        },
+                        {
+                          'type': 'text',
+                          'props': {
+                            'value': 'Tap the button to open the input sheet',
+                            'size': 14,
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      'type': 'row',
+                      'props': {'spacing': 8},
+                      'children': [
+                        {
+                          'type': 'icon',
+                          'props': {'icon': 'add', 'size': 20},
+                        },
+                        {
+                          'type': 'text',
+                          'props': {
+                            'value':
+                                'Choose Create to load a beautiful sample screen',
+                            'size': 14,
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      'type': 'row',
+                      'props': {'spacing': 8},
+                      'children': [
+                        {
+                          'type': 'icon',
+                          'props': {'icon': 'add', 'size': 20},
+                        },
+                        {
+                          'type': 'expanded',
+                          'children': [
+                            {
+                              'type': 'text',
+                              'props': {
+                                'value':
+                                    'Choose Update to tweak borders, colors, fonts, and layout',
+                                'size': 14,
+                                'fontFamily': 'Inter',
+                                'overFlow': 'ellipsis',
+                                'maxLines': 2,
+                              },
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+
+                {
+                  'type': 'sizedBox',
+                  'props': {'height': 8},
+                },
+
+                {
+                  'type': 'text',
+                  'props': {'value': 'Tips', 'size': 18, 'fontFamily': 'Inter'},
+                },
+                {
+                  'type': 'column',
+                  'props': {'spacing': 8},
+                  'children': [
+                    {
+                      'type': 'row',
+                      'props': {'spacing': 8},
+                      'children': [
+                        {
+                          'type': 'icon',
+                          'props': {'icon': 'add', 'size': 20},
+                        },
+                        {
+                          'type': 'text',
+                          'props': {
+                            'value':
+                                'Try: "Change the background color to #FFF2F2F2"',
+                            'size': 14,
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      'type': 'row',
+                      'props': {'spacing': 8},
+                      'children': [
+                        {
+                          'type': 'icon',
+                          'props': {'icon': 'add', 'size': 20},
+                        },
+                        {
+                          'type': 'text',
+                          'props': {
+                            'value': 'Try: "Round the input borders by 20"',
+                            'size': 14,
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      'type': 'row',
+                      'props': {'spacing': 8},
+                      'children': [
+                        {
+                          'type': 'icon',
+                          'props': {'icon': 'add', 'size': 20},
+                        },
+                        {
+                          'type': 'text',
+                          'props': {
+                            'value':
+                                'Try: "Add a text widget after image widget"',
+                            'size': 14,
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+
+        {
+          'type': 'sizedBox',
+          'props': {'height': 12},
+        },
+
+        // Footer logo
+        {
+          'type': 'image',
+          'props': {
+            'url':
+                'https://docs.flutter.dev/assets/images/dash/dash-fainting.gif',
+            'fit': 'contain',
+            'height': 48,
           },
         },
+
         {
-          'type': 'text',
-          'props': {'value': 'Async content loaded', 'size': 16},
+          'type': 'sizedBox',
+          'props': {'height': 24},
         },
       ],
     },
@@ -83,7 +299,9 @@ class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
   void resetToDefault() {
     state = const AsyncLoading();
     // No delay needed, but we keep a micro delay to yield the event loop
-    Future<void>.microtask(() => state = const AsyncData(kDefaultDynamicUiJson));
+    Future<void>.microtask(
+      () => state = const AsyncData(kDefaultDynamicUiJson),
+    );
   }
 
   void applyJson(Map<String, dynamic> json) {
@@ -91,6 +309,7 @@ class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
   }
 }
 
-final dynamicUiJsonProvider = AsyncNotifierProvider<DynamicUiJsonNotifier, Map<String, dynamic>>(
-  () => DynamicUiJsonNotifier(),
-);
+final dynamicUiJsonProvider =
+    AsyncNotifierProvider<DynamicUiJsonNotifier, Map<String, dynamic>>(
+      () => DynamicUiJsonNotifier(),
+    );
