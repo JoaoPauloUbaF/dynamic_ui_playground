@@ -1,3 +1,16 @@
 abstract class AiService {
-  Future<Map<String, dynamic>> getUIJSONFromAudioPrompt(dynamic audioFile);
+  /// Update an existing UI JSON given a natural language text instruction.
+  Future<Map<String, dynamic>> updateUiFromText({
+    required String prompt,
+    required Map<String, dynamic> currentJson,
+  });
+
+  /// Update an existing UI JSON given a spoken (audio) instruction.
+  /// Implementations may capture audio from the microphone and submit it along
+  /// with the provided prompt/context to the LLM.
+  Future<Map<String, dynamic>> updateUiFromAudio({
+    required String prompt,
+    required Map<String, dynamic> currentJson,
+    Duration captureDuration = const Duration(seconds: 6),
+  });
 }

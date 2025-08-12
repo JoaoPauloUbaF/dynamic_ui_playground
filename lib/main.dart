@@ -1,3 +1,5 @@
+import 'package:dynamic_ui_playground/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dynamic_ui/presentation/widgets/dynamic_ui_builder.dart';
@@ -6,7 +8,9 @@ import 'features/dynamic_ui/domain/providers/ui_json_provider.dart';
 import 'features/dynamic_ui/presentation/widgets/input_bottom_sheet.dart';
 import 'features/dynamic_ui/domain/mocks/ui_json_mocks.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -85,19 +89,30 @@ class MyHomePage extends ConsumerWidget {
           if (result is Map) {
             final mode = result['mode'] as String? ?? 'create';
             final prompt = (result['prompt'] as String?)?.trim() ?? '';
-            if (prompt.isNotEmpty) {
+            final voice = result['voice'] == true;
+            if (prompt.isNotEmpty || voice) {
               if (mode == 'create') {
+                // Try mocked create first; if no mock, fall back to AI text update over current JSON
                 final json = getCreateMockForPrompt(prompt);
                 if (json != null) {
                   ref.read(dynamicUiJsonProvider.notifier).applyJson(json);
+                } else {
+                  await vm.applyTextPrompt(prompt);
                 }
               } else {
+                // Update flow: if mocked suggestion exists, use it; else call AI.
                 final curr =
                     ref.read(dynamicUiJsonProvider).value ??
                     vm.lastValidOrDefault;
                 final updated = getUpdateMockForPrompt(prompt, curr);
                 if (updated != null) {
                   ref.read(dynamicUiJsonProvider.notifier).applyJson(updated);
+                } else {
+                  if (voice) {
+                    await vm.applyAudioPrompt(prompt);
+                  } else {
+                    await vm.applyTextPrompt(prompt);
+                  }
                 }
               }
             }

@@ -37,6 +37,11 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^2.6.1
 
+  # Firebase and AI
+  firebase_core: ^3.4.0
+  firebase_ai: ^2.3.0
+  record: ^6.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
