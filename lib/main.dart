@@ -1,8 +1,10 @@
 import 'package:dynamic_ui_playground/firebase_options.dart';
+import 'package:dynamic_ui_playground/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dynamic_ui/presentation/screens/home_page.dart';
+import 'util.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,11 +18,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final brightness = View.of(context).platformDispatcher.platformBrightness;
+
+    TextTheme textTheme = createTextTheme(
+      context,
+      "Albert Sans",
+      "AR One Sans",
+    );
+
+    MaterialTheme theme = MaterialTheme(textTheme);
     return MaterialApp(
       title: 'dynamic_ui_playground',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFC107)),
-      ),
+      theme: theme.light(),
+      darkTheme: theme.dark(),
+      themeMode: brightness == Brightness.light
+          ? ThemeMode.light
+          : ThemeMode.dark,
       home: const MyHomePage(title: 'Dynamic UI'),
     );
   }
