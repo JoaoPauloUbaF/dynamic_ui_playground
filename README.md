@@ -14,13 +14,15 @@ This repo is the result of an LLM‑assisted build session. The goal: demonstrat
   - Five “Create” prompts return curated JSON instantly.
   - Update prompts (mocked patterns) apply precise edits to the current JSON.
   - Optional: Firebase Generative AI can generate/update JSON from free‑form text or audio.
+ 
+  Bonus:
+- Testable by design
+  - Widget tests for the JSON builder.
+  - Integration test that runs the “Create” flow end‑to‑end.
 - Theme Easter Egg
   - Seed‑based Material 3 theme (ColorScheme.fromSeed).
   - Long‑press the “Dynamic UI” title to apply a random AI‑generated theme (fonts + seed color) with an opaque loading overlay.
   - Default seed color: Amber.
-- Testable by design
-  - Widget tests for the JSON builder.
-  - Integration test that runs the “Create” flow end‑to‑end.
 
 ## Quick Start
 
