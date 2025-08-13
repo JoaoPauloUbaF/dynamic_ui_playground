@@ -154,7 +154,7 @@ class _SavedUiCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nodes = _countNodes(item.json);
-    final vm = DynamicUiViewModel.instance..attach(ref);
+    final vm = DynamicUiViewModel.instance;
 
     return Card(
       elevation: 1.5,
@@ -193,7 +193,7 @@ class _SavedUiCard extends ConsumerWidget {
           onSelected: (value) async {
             switch (value) {
               case 'load':
-                vm.applyNewJson(item.json);
+                vm.applyNewJson(item.json, ref: ref);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Loaded "${item.name}"')),
