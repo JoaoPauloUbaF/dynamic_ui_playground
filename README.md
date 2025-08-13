@@ -28,7 +28,7 @@ Prerequisites
 - Flutter 3.22+ (stable recommended)
 - Dart 3.x
 - Xcode (for iOS) / Android Studio (for Android)
-- A device or emulator/simulator
+- A device or emulator/simulator or run it on web browser
 
 Clone
 
