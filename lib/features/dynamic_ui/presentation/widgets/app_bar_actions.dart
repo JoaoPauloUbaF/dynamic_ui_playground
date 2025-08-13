@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../presentation/view_model/dynamic_ui_view_model.dart';
-import '../../../saved_uis/domain/providers/saved_ui_provider.dart';
 import '../../../saved_uis/presentation/screens/saved_uis_screen.dart';
-import '../../domain/providers/ui_json_provider.dart';
 
-class AppBarActions extends StatelessWidget {
-  const AppBarActions({super.key, required this.ref});
-  final WidgetRef ref;
+class AppBarActions extends ConsumerWidget {
+  const AppBarActions({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final vm = DynamicUiViewModel.instance..attach(ref);
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -64,11 +61,7 @@ class AppBarActions extends StatelessWidget {
               ),
             );
             if (name != null) {
-              final currentJson =
-                  ref.read(dynamicUiJsonProvider).value ??
-                  vm.lastValidOrDefault;
-              final notifier = ref.read(savedUiListProvider.notifier);
-              final saved = await notifier.saveCurrent(name, currentJson);
+              final saved = await vm.saveCurrentUi(name, ref: ref);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Saved "${saved.name}"')),

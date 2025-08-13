@@ -19,7 +19,7 @@ class HomePage extends ConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [AppBarActions(ref: ref)],
+        actions: [AppBarActions()],
       ),
       body: asyncJson.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -42,7 +42,7 @@ class HomePage extends ConsumerWidget {
           child: DynamicUiBuilder(json: json),
         ),
       ),
-      floatingActionButton: NewInputFab(ref: ref),
+      floatingActionButton: NewInputFab(),
     );
   }
 }

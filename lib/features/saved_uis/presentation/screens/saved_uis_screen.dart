@@ -163,7 +163,7 @@ class _SavedUiCard extends ConsumerWidget {
           onSelected: (value) async {
             switch (value) {
               case 'load':
-                vm.applyNewJson(item.json, ref: ref);
+vm.applyNewJson(item.json, ref: ref);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Loaded "${item.name}"')),

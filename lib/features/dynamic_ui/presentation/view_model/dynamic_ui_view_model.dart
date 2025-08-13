@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dynamic_ui_playground/services/ai_service/ai_service_provider.dart';
 import 'package:dynamic_ui_playground/services/ai_service/ai_service.dart';
 import '../../domain/providers/ui_json_provider.dart';
+import '../../domain/mocks/ui_json_mocks.dart';
+import '../../../saved_uis/domain/providers/saved_ui_provider.dart';
+import '../../../saved_uis/domain/models/saved_ui.dart';
 
 /// Singleton ViewModel that bridges UI (WidgetRef) and the async JSON provider.
 class DynamicUiViewModel {
@@ -50,6 +53,64 @@ class DynamicUiViewModel {
   /// Returns last valid JSON or the default one if none yet.
   Map<String, dynamic> get lastValidOrDefault =>
       _lastValid ?? kDefaultDynamicUiJson;
+
+  /// Returns the current provider JSON value if available, otherwise the last valid
+  /// or default JSON. Keeps provider access inside the ViewModel.
+  Map<String, dynamic> getCurrentJson({WidgetRef? ref}) {
+    final useRef = ref ?? _ref;
+    if (useRef == null) return lastValidOrDefault;
+    final current = useRef.read(dynamicUiJsonProvider).value;
+    return current ?? lastValidOrDefault;
+  }
+
+  /// Saves the current UI JSON with the provided name using the saved UI provider.
+  /// Returns the SavedUi item created.
+  Future<SavedUi> saveCurrentUi(String name, {WidgetRef? ref}) async {
+    final useRef = ref ?? _ref;
+    if (useRef == null) {
+      throw StateError('WidgetRef not attached to ViewModel');
+    }
+    final currentJson = getCurrentJson(ref: useRef);
+    final notifier = useRef.read(savedUiListProvider.notifier);
+    final saved = await notifier.saveCurrent(name, currentJson);
+    return saved;
+  }
+
+  /// Encapsulates the new input processing (create/update, mock shortcuts, AI calls).
+  /// Widgets should call this and handle only UI concerns (SnackBars, etc.).
+  Future<void> processInput({
+    required String mode,
+    required String prompt,
+    required bool voice,
+    WidgetRef? ref,
+  }) async {
+    final useRef = ref ?? _ref;
+    if (useRef == null) return;
+    if (mode == 'create') {
+      final json = getCreateMockForPrompt(prompt);
+      if (json != null) {
+        applyNewJson(json, ref: useRef);
+        return;
+      }
+      if (voice) {
+        await applyCreateAudio(prompt);
+      } else {
+        await applyCreateText(prompt);
+      }
+    } else {
+      final curr = getCurrentJson(ref: useRef);
+      final updated = getUpdateMockForPrompt(prompt, curr);
+      if (updated != null) {
+        applyNewJson(updated, ref: useRef);
+        return;
+      }
+      if (voice) {
+        await applyAudioPrompt(prompt);
+      } else {
+        await applyTextPrompt(prompt);
+      }
+    }
+  }
 
   Map<String, dynamic> _deepCopy(Map<String, dynamic> m) =>
       json.decode(json.encode(m)) as Map<String, dynamic>;
