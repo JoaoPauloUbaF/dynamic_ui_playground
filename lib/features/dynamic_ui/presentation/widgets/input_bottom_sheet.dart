@@ -66,16 +66,6 @@ class _DynamicInputBottomSheetState extends State<DynamicInputBottomSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Drag handle
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).dividerColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
             // Manual tab-like toggle
             _ModeToggle(
               onChanged: (m) => setState(() => _mode = m),
@@ -115,7 +105,9 @@ class _DynamicInputBottomSheetState extends State<DynamicInputBottomSheet> {
                   IconButton(
                     onPressed: () {
                       final text = _controller.text.trim();
-                      Navigator.of(context).pop({'mode': 'update', 'prompt': text, 'voice': true});
+                      Navigator.of(
+                        context,
+                      ).pop({'mode': 'update', 'prompt': text, 'voice': true});
                     },
                     icon: const Icon(Icons.mic),
                     tooltip: 'Voice input',

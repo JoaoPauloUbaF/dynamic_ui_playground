@@ -5,6 +5,10 @@ Type a prompt (or pick a suggestion) and watch the layout morph in real time. Lo
 
 This repo is the result of an LLM‑assisted build session. The goal: demonstrate how we use AI to code faster, reason better, and ship delightful interactions.
 
+## Live Demo
+
+https://joaopauloubaf.github.io/dynamic-ui-playground-demo/
+
 ## Highlights
 
 - Dynamic UI from JSON
@@ -25,6 +29,23 @@ This repo is the result of an LLM‑assisted build session. The goal: demonstrat
   - Default seed color: Amber.
 
 ## Quick Start
+
+### Deploy (GitHub Pages)
+
+- One command to build and publish the web demo to the separate repo:
+
+```bash
+./scripts/deploy_pages.sh
+```
+
+- To publish to a different repo/name/branch, override via env vars:
+
+```bash
+REPO_URL=https://github.com/<user>/<repo>.git \
+REPO_NAME=<repo> \
+BRANCH=main \
+./scripts/deploy_pages.sh
+```
 
 Prerequisites
 - Flutter 3.22+ (stable recommended)

@@ -15,7 +15,8 @@ class InputSuggestions extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Wrap(
-        spacing: 2,
+        spacing: 4,
+        runSpacing: 4,
         children: suggestions
             .map(
               (e) => ActionChip(

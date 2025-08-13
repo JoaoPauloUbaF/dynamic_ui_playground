@@ -16,15 +16,46 @@ class NewInputFab extends ConsumerWidget {
       onPressed: () async {
         final currentJson = vm.getCurrentJson();
         final updateSuggestions = getUpdateSuggestionsForJson(currentJson);
-        final result = await showModalBottomSheet(
-          context: context,
-          useSafeArea: true,
-          isScrollControlled: true,
-          builder: (_) => DynamicInputBottomSheet(
-            createSuggestions: kDefaultCreateSuggestions,
-            updateSuggestions: updateSuggestions,
-          ),
-        );
+
+        final width = MediaQuery.sizeOf(context).width;
+        final isWide = width >= 900;
+
+        Future<dynamic> openInput() {
+          if (isWide) {
+            return showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                contentPadding: const EdgeInsets.all(24),
+                title: const Text('New input'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                ],
+                content: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: DynamicInputBottomSheet(
+                    createSuggestions: kDefaultCreateSuggestions,
+                    updateSuggestions: updateSuggestions,
+                  ),
+                ),
+              ),
+            );
+          }
+          return showModalBottomSheet(
+            context: context,
+            useSafeArea: true,
+            showDragHandle: true,
+            isScrollControlled: true,
+            builder: (_) => DynamicInputBottomSheet(
+              createSuggestions: kDefaultCreateSuggestions,
+              updateSuggestions: updateSuggestions,
+            ),
+          );
+        }
+
+        final result = await openInput();
         if (result is Map) {
           final mode = result['mode'] as String? ?? 'create';
           final prompt = (result['prompt'] as String?)?.trim() ?? '';
