@@ -12,8 +12,11 @@ class ElevatedButtonDS extends BaseDS<ElevatedButton> {
   String get type => 'elevatedButton';
 
   @override
-  ElevatedButton build() =>
-      ElevatedButton(onPressed: onPressed, style: style, child: Text(label));
+  ElevatedButton build() => ElevatedButton(
+    onPressed: onPressed ?? () {},
+    style: style,
+    child: Text(label),
+  );
 
   factory ElevatedButtonDS.fromJson(Map<String, dynamic> json) =>
       ElevatedButtonDS(

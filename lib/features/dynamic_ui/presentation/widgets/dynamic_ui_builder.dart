@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/design_system/widgets_ds.dart';
 
@@ -10,7 +11,10 @@ class DynamicUiBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildFromJson(json);
+    return _buildFromJson(json).animate().fadeIn(
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeInOut,
+    );
   }
 }
 

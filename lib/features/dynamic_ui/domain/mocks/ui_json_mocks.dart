@@ -1,4 +1,10 @@
-/// UI JSON mocks for suggestions
+// ignore_for_file: unintended_html_in_doc_comment
+
+/// Default "Create" suggestions shown in the input sheet.
+///
+/// These correspond to richer, hand-crafted JSON mocks returned by
+/// [getCreateMockForPrompt] to instantly demonstrate the system without
+/// calling the AI service.
 const List<String> kDefaultCreateSuggestions = [
   'Create a login screen with email and password',
   'Add a profile header with avatar and name',
@@ -7,6 +13,8 @@ const List<String> kDefaultCreateSuggestions = [
   'Compose a settings page with toggles',
 ];
 
+/// Return a full UI JSON mock that matches an exact Create [prompt],
+/// or null if no mock is defined.
 Map<String, dynamic>? getCreateMockForPrompt(String prompt) {
   switch (prompt) {
     case 'Create a login screen with email and password':
@@ -25,6 +33,8 @@ Map<String, dynamic>? getCreateMockForPrompt(String prompt) {
 }
 
 // Update suggestions and mocks
+/// Default "Update" suggestions. The list is combined with contextual
+/// suggestions produced by [getUpdateSuggestionsForJson].
 const List<String> kDefaultUpdateSuggestions = [
   'Change the background color to #3d2d01',
   'Change the fontfamily to Open Sans',
@@ -35,6 +45,11 @@ const List<String> kDefaultUpdateSuggestions = [
 ];
 
 /// Build context-aware update suggestions based on the current JSON.
+///
+/// Walks the tree and records which widget types are present, then combines a
+/// small set of defaults with context-specific entries (e.g., if an image
+/// exists, propose changing its fit or adding text after it). The output is
+/// de-duplicated and capped by [max].
 List<String> getUpdateSuggestionsForJson(
   Map<String, dynamic> current, {
   int max = 5,
@@ -95,6 +110,17 @@ List<String> getUpdateSuggestionsForJson(
   return deduped.take(max).toList();
 }
 
+/// Return an updated JSON derived from [current] if the Update [prompt]
+/// matches a supported pattern. Otherwise returns null so the AI flow can run.
+///
+/// Supported patterns include:
+/// - Change the background color to <color>
+/// - Round the input borders by <radius>
+/// - Remove the last item
+/// - Add a <type> widget (before|after) <anchor> widget
+/// - Change the image fit to <fit>
+/// - Change the image size to <w>x<h>
+/// - Change the fontfamily to <family>
 Map<String, dynamic>? getUpdateMockForPrompt(
   String prompt,
   Map<String, dynamic> current,
@@ -173,6 +199,8 @@ Map<String, dynamic>? getUpdateMockForPrompt(
   return null;
 }
 
+/// Deep-clone a JSON-like map to avoid shared references when producing
+/// mock updates.
 Map<String, dynamic> _clone(Map<String, dynamic> src) {
   Map<String, dynamic> newMap = {};
   src.forEach((key, value) {
@@ -187,6 +215,7 @@ Map<String, dynamic> _clone(Map<String, dynamic> src) {
   return newMap;
 }
 
+/// Deep-clone a JSON-like list.
 List<dynamic> _cloneList(List<dynamic> srcList) {
   List<dynamic> newList = [];
   for (var item in srcList) {
@@ -201,6 +230,7 @@ List<dynamic> _cloneList(List<dynamic> srcList) {
   return newList;
 }
 
+/// Set the background color on container nodes to [color].
 Map<String, dynamic> _setBackgroundColor(
   Map<String, dynamic> node,
   String color,
@@ -218,6 +248,7 @@ Map<String, dynamic> _setBackgroundColor(
   return node;
 }
 
+/// Round borders on textField nodes by [radius].
 Map<String, dynamic> _roundInputBorders(
   Map<String, dynamic> node,
   double radius,
@@ -239,6 +270,8 @@ Map<String, dynamic> _roundInputBorders(
   return node;
 }
 
+/// Insert a default [newType] widget before/after the first [anchorType]
+/// occurrence found in a depth-first traversal.
 Map<String, dynamic> _addWidgetRelative(
   Map<String, dynamic> node,
   String newType,
@@ -282,6 +315,7 @@ Map<String, dynamic> _addWidgetRelative(
   return node;
 }
 
+/// Produce a minimal JSON node for a given widget [t], or null if unknown.
 Map<String, Object>? _defaultWidgetForType(String t) {
   switch (t) {
     case 'text':
@@ -320,6 +354,7 @@ Map<String, Object>? _defaultWidgetForType(String t) {
   }
 }
 
+/// Change the `fit` property for all image nodes to [fit].
 Map<String, dynamic> _changeImageFit(Map<String, dynamic> node, String fit) {
   void visit(Map<String, dynamic> n) {
     if (n['type'] == 'image') {
@@ -338,6 +373,7 @@ Map<String, dynamic> _changeImageFit(Map<String, dynamic> node, String fit) {
   return node;
 }
 
+/// Change the width/height of all image nodes to [w] and/or [h].
 Map<String, dynamic> _changeImageSize(
   Map<String, dynamic> node,
   double? w,
@@ -361,6 +397,7 @@ Map<String, dynamic> _changeImageSize(
   return node;
 }
 
+/// Set the `fontFamily` for all text nodes to [family].
 Map<String, dynamic> _changeFontFamily(
   Map<String, dynamic> node,
   String family,
@@ -380,6 +417,7 @@ Map<String, dynamic> _changeFontFamily(
   return node;
 }
 
+/// Remove the last child from the first node that has children.
 Map<String, dynamic> _removeLastChild(Map<String, dynamic> node) {
   final map = Map<String, dynamic>.from(node);
   void visit(Map<String, dynamic> n) {
@@ -400,10 +438,10 @@ Map<String, dynamic> _removeLastChild(Map<String, dynamic> node) {
   return map;
 }
 
+/// Mock: a simple login screen with email/password fields and a primary button.
 Map<String, dynamic> _loginScreen() => {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFFFFFFF'},
     'padding': {'all': 16},
   },
   'children': [
@@ -421,11 +459,15 @@ Map<String, dynamic> _loginScreen() => {
           'children': [
             {
               'type': 'text',
-              'props': {'value': 'Welcome back', 'size': 26, 'fontFamily': 'Inter'},
+              'props': {'value': 'Welcome back', 'size': 26},
             },
             {
               'type': 'textField',
-              'props': {'hint': 'Email', 'prefixIcon': 'email', 'borderRadius': 12},
+              'props': {
+                'hint': 'Email',
+                'prefixIcon': 'email',
+                'borderRadius': 12,
+              },
             },
             {
               'type': 'textField',
@@ -445,7 +487,6 @@ Map<String, dynamic> _loginScreen() => {
                   'props': {
                     'label': 'Sign In',
                     'style': {
-                      'backgroundColor': '#FF6200EE',
                       'padding': {'all': 12},
                       'borderRadius': 12,
                     },
@@ -460,10 +501,10 @@ Map<String, dynamic> _loginScreen() => {
   ],
 };
 
+/// Mock: a profile header with avatar, name, and actions row.
 Map<String, dynamic> _profileHeader() => {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFF6F6F6'},
     'padding': {'all': 24},
   },
   'children': [
@@ -492,7 +533,7 @@ Map<String, dynamic> _profileHeader() => {
         },
         {
           'type': 'text',
-          'props': {'value': 'Jane Doe', 'size': 22, 'fontFamily': 'Inter'},
+          'props': {'value': 'Jane Doe', 'size': 22},
         },
         {
           'type': 'row',
@@ -525,10 +566,10 @@ Map<String, dynamic> _profileHeader() => {
   ],
 };
 
+/// Mock: a 2x2 grid of product cards.
 Map<String, dynamic> _productGrid() => {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFFFFFF'},
     'padding': {'all': 12},
   },
   'children': [
@@ -597,6 +638,7 @@ Map<String, dynamic> _productGrid() => {
   ],
 };
 
+/// Helper: build a colored product card with [title] and [imageUrl].
 Map<String, dynamic> _productCard(
   String title,
   String imageUrl,
@@ -605,7 +647,6 @@ Map<String, dynamic> _productCard(
   'type': 'container',
   'props': {
     'decoration': {
-      'color': color,
       'borderRadius': {'all': 12},
     },
     'padding': {'all': 12},
@@ -628,12 +669,14 @@ Map<String, dynamic> _productCard(
   ],
 };
 
+/// Mock: a list of 5 news items with thumbnail and text.
 Map<String, dynamic> _newsList() => {
   'type': 'column',
   'props': {'spacing': 12},
   'children': List.generate(5, (i) => _newsItem(i)),
 };
 
+/// Helper: build a single news row for index [i].
 Map<String, dynamic> _newsItem(int i) => {
   'type': 'row',
   'props': {'spacing': 12},
@@ -688,6 +731,7 @@ Map<String, dynamic> _newsItem(int i) => {
   ],
 };
 
+/// Mock: a basic settings page with a handful of toggles (simulated).
 Map<String, dynamic> _settingsPage() => {
   'type': 'column',
   'props': {'spacing': 12},
@@ -699,6 +743,7 @@ Map<String, dynamic> _settingsPage() => {
   ],
 };
 
+/// Helper: build a settings row displaying [label] and a simulated toggle.
 Map<String, dynamic> _settingsTile(String label, bool value) => {
   'type': 'row',
   'props': {

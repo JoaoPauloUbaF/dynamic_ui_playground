@@ -13,7 +13,8 @@ class FlexibleDS extends BaseDS<Widget> {
   @override
   Widget build() => Flexible(flex: flex, fit: fit, child: child);
 
-  factory FlexibleDS.fromJson(Map<String, dynamic> json, Widget child) => FlexibleDS(
+  factory FlexibleDS.fromJson(Map<String, dynamic> json, Widget child) =>
+      FlexibleDS(
         flex: (json['flex'] as int?) ?? 1,
         fit: _fitFromString(json['fit']) ?? FlexFit.loose,
         child: child,
@@ -21,10 +22,10 @@ class FlexibleDS extends BaseDS<Widget> {
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'flex': flex,
-        'fit': _fitToString(fit),
-      };
+    'type': type,
+    'flex': flex,
+    'fit': _fitToString(fit),
+  };
 }
 
 FlexFit? _fitFromString(dynamic s) {
@@ -43,8 +44,6 @@ String _fitToString(FlexFit f) {
     case FlexFit.tight:
       return 'tight';
     case FlexFit.loose:
-    default:
       return 'loose';
   }
 }
-

@@ -2,11 +2,20 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Default JSON used when provider is first loaded or reset.
+/// Default JSON that defines the initial UI layout when the app starts.
+///
+/// This serves as the home screen for the Dynamic UI Playground app, showcasing
+/// a welcome header, instructions for using the app, and a placeholder image.
+/// The structure demonstrates various widget types like containers, columns,
+/// rows, texts, and images that can be dynamically generated and modified.
+///
+/// The JSON follows the app's widget schema where each node has:
+/// - `type`: The widget type (container, column, text, image, etc.)
+/// - `props`: Properties specific to that widget (colors, sizes, alignment)
+/// - `children`: Optional array of child widgets for layout containers
 const Map<String, dynamic> kDefaultDynamicUiJson = {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFF'},
     'padding': {'all': 16},
   },
   'children': [
@@ -22,7 +31,7 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
         {
           'type': 'container',
           'props': {
-            'decoration': {'color': '#FF6200EE'},
+            'decoration': {'color': '#FFFFB100'},
             'padding': {'all': 24},
             'alignment': 'center',
           },
@@ -81,7 +90,6 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
           'type': 'container',
           'props': {
             'decoration': {
-              'color': '#FFFFFFFF',
               'borderRadius': {'all': 16},
             },
             'padding': {'all': 16},
@@ -252,7 +260,7 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
             'url':
                 'https://docs.flutter.dev/assets/images/dash/dash-fainting.gif',
             'fit': 'contain',
-            'height': 80,
+            'height': 150,
           },
         },
 
@@ -270,16 +278,11 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
 class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
   FutureOr<Map<String, dynamic>> build() async {
-    // Simulate network delay
-    await Future<void>.delayed(const Duration(milliseconds: 1000));
-    // Return default initially
     return kDefaultDynamicUiJson;
   }
 
   Future<void> refreshFromServer() async {
     state = const AsyncLoading();
-    // Simulate a fetch with slight variation
-    await Future<void>.delayed(const Duration(milliseconds: 500));
     state = AsyncData({
       ...kDefaultDynamicUiJson,
       'children': [
@@ -306,6 +309,10 @@ class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
 
   void applyJson(Map<String, dynamic> json) {
     state = AsyncData(json);
+  }
+
+  void setLoading() {
+    state = const AsyncLoading();
   }
 }
 

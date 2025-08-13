@@ -79,8 +79,7 @@ class CommonProps {
 
   static String? colorToHex(Color? color) {
     if (color == null) return null;
-    final value = color.value;
+    final value = color.toARGB32();
     return '#${value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
   }
 }
-

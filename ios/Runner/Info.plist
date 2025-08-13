@@ -45,5 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Microphone permission for audio recording -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses the microphone to capture your voice prompts.</string>
 </dict>
 </plist>

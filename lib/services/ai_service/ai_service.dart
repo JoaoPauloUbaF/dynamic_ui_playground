@@ -1,3 +1,34 @@
 abstract class AiService {
-  Future<Map<String, dynamic>> getUIJSONFromAudioPrompt(dynamic audioFile);
+  /// Create an initial UI JSON from a natural language text description.
+  Future<Map<String, dynamic>> createUiFromText({
+    required String prompt,
+  });
+
+  /// Create an initial UI JSON from a spoken (audio) description.
+  Future<Map<String, dynamic>> createUiFromAudio({
+    required String prompt,
+    Duration captureDuration = const Duration(seconds: 6),
+  });
+
+  /// Update an existing UI JSON given a natural language text instruction.
+  Future<Map<String, dynamic>> updateUiFromText({
+    required String prompt,
+    required Map<String, dynamic> currentJson,
+  });
+
+  /// Update an existing UI JSON given a spoken (audio) instruction.
+  /// Implementations may capture audio from the microphone and submit it along
+  /// with the provided prompt/context to the LLM.
+  Future<Map<String, dynamic>> updateUiFromAudio({
+    required String prompt,
+    required Map<String, dynamic> currentJson,
+    Duration captureDuration = const Duration(seconds: 6),
+  });
+
+  /// Generate an app theme specification from a natural language description.
+  /// The returned map should include:
+  /// { "mode": "light|dark", "contrast": "normal|medium|high", "bodyFont": String, "displayFont": String }
+  Future<Map<String, dynamic>> generateThemeFromText({
+    required String prompt,
+  });
 }
