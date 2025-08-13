@@ -16,7 +16,6 @@ class HomePage extends ConsumerWidget {
     final asyncJson = vm.watchJson();
 
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         title: Text('Dynamic UI'),
         centerTitle: false,
@@ -40,7 +39,9 @@ class HomePage extends ConsumerWidget {
           );
         },
         data: (json) => Padding(
-          padding: const EdgeInsets.only(bottom: 120.0),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom + 32,
+          ),
           child: DynamicUiBuilder(json: json),
         ),
       ),

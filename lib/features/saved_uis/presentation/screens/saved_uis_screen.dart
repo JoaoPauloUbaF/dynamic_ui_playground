@@ -25,9 +25,7 @@ class _SavedUisScreenState extends ConsumerState<SavedUisScreen> {
     final listAsync = ref.watch(savedUiListProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Saved UIs'),
-      ),
+      appBar: AppBar(title: const Text('Saved UIs')),
       body: RefreshIndicator(
         onRefresh: () => ref.read(savedUiListProvider.notifier).refresh(),
         child: listAsync.when(
@@ -38,14 +36,22 @@ class _SavedUisScreenState extends ConsumerState<SavedUisScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                  const Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Colors.redAccent,
+                  ),
                   const SizedBox(height: 12),
-                  Text('Failed to load saved UIs', style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    'Failed to load saved UIs',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 8),
                   Text('$e', textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   FilledButton.icon(
-                    onPressed: () => ref.read(savedUiListProvider.notifier).refresh(),
+                    onPressed: () =>
+                        ref.read(savedUiListProvider.notifier).refresh(),
                     icon: const Icon(Icons.refresh),
                     label: const Text('Retry'),
                   ),
@@ -55,12 +61,18 @@ class _SavedUisScreenState extends ConsumerState<SavedUisScreen> {
           ),
           data: (items) {
             if (items.isEmpty) {
-              return _EmptyState(onCreate: () async {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Use the "Save UI" button on the Home app bar to save your current UI.')),
-                );
-              });
+              return _EmptyState(
+                onCreate: () async {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Use the "Save UI" button on the Home app bar to save your current UI.',
+                      ),
+                    ),
+                  );
+                },
+              );
             }
             return ListView.separated(
               padding: const EdgeInsets.all(12),
@@ -87,9 +99,16 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bookmarks_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
+            Icon(
+              Icons.bookmarks_outlined,
+              size: 72,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(height: 12),
-            Text('No saved pages yet', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'No saved pages yet',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 8),
             Text(
               'When you craft a UI you like, tap the "Save UI" button in the top bar to keep it here.',
@@ -115,7 +134,8 @@ class _SavedUiCard extends ConsumerWidget {
 
   int _countNodes(Map<String, dynamic> node) {
     int count = 1;
-    final children = (node['children'] as List?)?.whereType<Map>().toList() ?? const [];
+    final children =
+        (node['children'] as List?)?.whereType<Map>().toList() ?? const [];
     for (final c in children) {
       count += _countNodes(c.cast<String, dynamic>());
     }
@@ -143,18 +163,28 @@ class _SavedUiCard extends ConsumerWidget {
         leading: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
           child: Text(
-            item.name.isNotEmpty ? item.name.substring(0, 1).toUpperCase() : 'U',
+            item.name.isNotEmpty
+                ? item.name.substring(0, 1).toUpperCase()
+                : 'U',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Row(
           children: [
-            Icon(Icons.calendar_today, size: 14, color: Theme.of(context).hintColor),
+            Icon(
+              Icons.calendar_today,
+              size: 14,
+              color: Theme.of(context).hintColor,
+            ),
             const SizedBox(width: 4),
             Text(_formatDate(item.createdAt)),
             const SizedBox(width: 12),
-            Icon(Icons.account_tree, size: 14, color: Theme.of(context).hintColor),
+            Icon(
+              Icons.account_tree,
+              size: 14,
+              color: Theme.of(context).hintColor,
+            ),
             const SizedBox(width: 4),
             Text('$nodes nodes'),
           ],
@@ -163,7 +193,7 @@ class _SavedUiCard extends ConsumerWidget {
           onSelected: (value) async {
             switch (value) {
               case 'load':
-vm.applyNewJson(item.json, ref: ref);
+                vm.applyNewJson(item.json);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Loaded "${item.name}"')),
@@ -182,13 +212,22 @@ vm.applyNewJson(item.json, ref: ref);
                       decoration: const InputDecoration(labelText: 'Name'),
                     ),
                     actions: [
-                      TextButton(onPressed: () => Navigator.of(ctx).pop(null), child: const Text('Cancel')),
-                      TextButton(onPressed: () => Navigator.of(ctx).pop(controller.text.trim()), child: const Text('Save')),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(null),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.of(ctx).pop(controller.text.trim()),
+                        child: const Text('Save'),
+                      ),
                     ],
                   ),
                 );
                 if (newName != null && newName.isNotEmpty) {
-                  await ref.read(savedUiRepositoryProvider).rename(id: item.id, name: newName);
+                  await ref
+                      .read(savedUiRepositoryProvider)
+                      .rename(id: item.id, name: newName);
                   await ref.read(savedUiListProvider.notifier).refresh();
                 }
                 break;
@@ -197,10 +236,18 @@ vm.applyNewJson(item.json, ref: ref);
                   context: context,
                   builder: (ctx) => AlertDialog(
                     title: const Text('Delete saved UI?'),
-                    content: Text('This will remove "${item.name}" permanently.'),
+                    content: Text(
+                      'This will remove "${item.name}" permanently.',
+                    ),
                     actions: [
-                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-                      FilledButton.tonal(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      FilledButton.tonal(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: const Text('Delete'),
+                      ),
                     ],
                   ),
                 );
@@ -212,9 +259,24 @@ vm.applyNewJson(item.json, ref: ref);
             }
           },
           itemBuilder: (ctx) => [
-            const PopupMenuItem(value: 'load', child: ListTile(leading: Icon(Icons.playlist_add), title: Text('Load'))),
-            const PopupMenuItem(value: 'rename', child: ListTile(leading: Icon(Icons.edit), title: Text('Rename'))),
-            const PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete_outline), title: Text('Delete'))),
+            const PopupMenuItem(
+              value: 'load',
+              child: ListTile(
+                leading: Icon(Icons.playlist_add),
+                title: Text('Load'),
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'rename',
+              child: ListTile(leading: Icon(Icons.edit), title: Text('Rename')),
+            ),
+            const PopupMenuItem(
+              value: 'delete',
+              child: ListTile(
+                leading: Icon(Icons.delete_outline),
+                title: Text('Delete'),
+              ),
+            ),
           ],
         ),
       ),
