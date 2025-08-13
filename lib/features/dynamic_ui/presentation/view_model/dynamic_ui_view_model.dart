@@ -62,7 +62,8 @@ class DynamicUiViewModel {
     final useRef = ref ?? _ref;
     if (useRef == null) return;
     _ref = useRef; // keep latest valid ref
-    final current = useRef.read(dynamicUiJsonProvider).value ?? lastValidOrDefault;
+    final current =
+        useRef.read(dynamicUiJsonProvider).value ?? lastValidOrDefault;
     if (_deepEquals(current, newJson)) {
       // No change, don't spam history
       return;
@@ -81,7 +82,8 @@ class DynamicUiViewModel {
     if (useRef == null) return;
     _ref = useRef;
     if (_past.isEmpty) return;
-    final current = useRef.read(dynamicUiJsonProvider).value ?? lastValidOrDefault;
+    final current =
+        useRef.read(dynamicUiJsonProvider).value ?? lastValidOrDefault;
     _future.add(_deepCopy(current));
     final prev = _past.removeLast();
     _lastValid = _deepCopy(prev);
@@ -93,7 +95,8 @@ class DynamicUiViewModel {
     if (useRef == null) return;
     _ref = useRef;
     if (_future.isEmpty) return;
-    final current = useRef.read(dynamicUiJsonProvider).value ?? lastValidOrDefault;
+    final current =
+        useRef.read(dynamicUiJsonProvider).value ?? lastValidOrDefault;
     _past.add(_deepCopy(current));
     final next = _future.removeLast();
     _lastValid = _deepCopy(next);
@@ -123,7 +126,7 @@ class DynamicUiViewModel {
     final ref = _ref;
     final ai = _ai;
     if (ref == null || ai == null) return;
-    ref.read(dynamicUiJsonProvider.notifier).state = const AsyncLoading();
+    ref.read(dynamicUiJsonProvider.notifier).setLoading();
     try {
       final created = await ai.createUiFromText(prompt: prompt);
       applyNewJson(created);
@@ -138,7 +141,7 @@ class DynamicUiViewModel {
     final ref = _ref;
     final ai = _ai;
     if (ref == null || ai == null) return;
-    ref.read(dynamicUiJsonProvider.notifier).state = const AsyncLoading();
+    ref.read(dynamicUiJsonProvider.notifier).setLoading();
     try {
       final created = await ai.createUiFromAudio(prompt: prompt);
       applyNewJson(created);
@@ -156,7 +159,7 @@ class DynamicUiViewModel {
     final ai = _ai;
     if (ref == null || ai == null) return;
     // set loading
-    ref.read(dynamicUiJsonProvider.notifier).state = const AsyncLoading();
+    ref.read(dynamicUiJsonProvider.notifier).setLoading();
     final current = lastValidOrDefault;
     try {
       final updated = await ai.updateUiFromText(
@@ -176,7 +179,7 @@ class DynamicUiViewModel {
     final ref = _ref;
     final ai = _ai;
     if (ref == null || ai == null) return;
-    ref.read(dynamicUiJsonProvider.notifier).state = const AsyncLoading();
+    ref.read(dynamicUiJsonProvider.notifier).setLoading();
     final current = lastValidOrDefault;
     try {
       final updated = await ai.updateUiFromAudio(

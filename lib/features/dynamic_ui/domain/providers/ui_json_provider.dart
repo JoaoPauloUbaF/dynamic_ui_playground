@@ -270,16 +270,11 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
 class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
   FutureOr<Map<String, dynamic>> build() async {
-    // Simulate network delay
-    await Future<void>.delayed(const Duration(milliseconds: 1000));
-    // Return default initially
     return kDefaultDynamicUiJson;
   }
 
   Future<void> refreshFromServer() async {
     state = const AsyncLoading();
-    // Simulate a fetch with slight variation
-    await Future<void>.delayed(const Duration(milliseconds: 500));
     state = AsyncData({
       ...kDefaultDynamicUiJson,
       'children': [
@@ -306,6 +301,10 @@ class DynamicUiJsonNotifier extends AsyncNotifier<Map<String, dynamic>> {
 
   void applyJson(Map<String, dynamic> json) {
     state = AsyncData(json);
+  }
+
+  void setLoading() {
+    state = const AsyncLoading();
   }
 }
 
