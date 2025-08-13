@@ -46,11 +46,14 @@ flutter pub get
 Run (pick one)
 
 ```bash
-# iOS simulator
+# iOS simulator (recommended)
 flutter run -d ios
 
 # Android emulator
 flutter run -d android
+
+# Web (Chrome)
+flutter run -d chrome
 
 # Any connected device
 flutter run

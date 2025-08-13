@@ -49,6 +49,7 @@ class MyApp extends ConsumerWidget {
       theme: light,
       darkTheme: dark,
       themeMode: appTheme.mode,
+      debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: 'Dynamic UI'),
     );
   }
