@@ -18,6 +18,8 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
+        title: Text('Dynamic UI'),
+        centerTitle: false,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [AppBarActions()],
       ),

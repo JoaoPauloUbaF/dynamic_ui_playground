@@ -14,16 +14,6 @@ class AppBarActions extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          tooltip: 'Undo',
-          icon: const Icon(Icons.undo),
-          onPressed: vm.canUndo ? () => vm.undo(ref: ref) : null,
-        ),
-        IconButton(
-          tooltip: 'Redo',
-          icon: const Icon(Icons.redo),
-          onPressed: vm.canRedo ? () => vm.redo(ref: ref) : null,
-        ),
-        IconButton(
           tooltip: 'Saved UIs',
           icon: const Icon(Icons.bookmarks),
           onPressed: () async {
@@ -69,6 +59,16 @@ class AppBarActions extends ConsumerWidget {
               }
             }
           },
+        ),
+        IconButton(
+          tooltip: 'Undo',
+          icon: const Icon(Icons.undo),
+          onPressed: vm.canUndo ? () => vm.undo(ref: ref) : null,
+        ),
+        IconButton(
+          tooltip: 'Redo',
+          icon: const Icon(Icons.redo),
+          onPressed: vm.canRedo ? () => vm.redo(ref: ref) : null,
         ),
         IconButton(
           tooltip: 'Reset',
