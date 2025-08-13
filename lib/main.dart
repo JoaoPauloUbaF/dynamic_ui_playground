@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dynamic_ui/presentation/screens/home_page.dart';
+import 'features/easter_egg/domain/providers/app_theme_provider.dart';
 import 'util.dart';
 
 Future<void> main() async {
@@ -12,28 +13,42 @@ Future<void> main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    final brightness = View.of(context).platformDispatcher.platformBrightness;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appTheme = ref.watch(appThemeProvider);
 
-    TextTheme textTheme = createTextTheme(
+    final textTheme = createTextTheme(
       context,
-      "Albert Sans",
-      "AR One Sans",
+      appTheme.bodyFont,
+      appTheme.displayFont,
     );
 
-    MaterialTheme theme = MaterialTheme(textTheme);
+    Color parseSeed(String hex) {
+      final cleaned = hex.replaceFirst('#', '');
+      final value = int.parse(
+        cleaned.length == 8 ? cleaned : 'FF$cleaned',
+        radix: 16,
+      );
+      return Color(value);
+    }
+
+    final materialTheme = MaterialTheme(
+      textTheme,
+      seedColor: parseSeed(appTheme.baseColor),
+    );
+
+    final ThemeData light = materialTheme.light();
+    final ThemeData dark = materialTheme.dark();
+
     return MaterialApp(
       title: 'dynamic_ui_playground',
-      theme: theme.light(),
-      darkTheme: theme.dark(),
-      themeMode: brightness == Brightness.light
-          ? ThemeMode.light
-          : ThemeMode.dark,
+      theme: light,
+      darkTheme: dark,
+      themeMode: appTheme.mode,
       home: const MyHomePage(title: 'Dynamic UI'),
     );
   }

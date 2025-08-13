@@ -175,4 +175,44 @@ Return only the updated JSON object.
 
   static String _minify(Map<String, dynamic> json) =>
       const JsonEncoder().convert(json);
+
+  /// Build a prompt to generate a theme spec from a textual description.
+  /// The model must return ONLY a compact JSON object with keys:
+  /// {
+  ///   "mode": "light" | "dark",
+  ///   "contrast": "normal" | "medium" | "high",
+  ///   "bodyFont": String,
+  ///   "displayFont": String,
+  ///   "colors": {
+  ///     "primary": "#AARRGGBB",
+  ///     "onPrimary": "#AARRGGBB",
+  ///     "secondary": "#AARRGGBB",
+  ///     "onSecondary": "#AARRGGBB",
+  ///     "tertiary": "#AARRGGBB",
+  ///     "onTertiary": "#AARRGGBB",
+  ///     "background": "#AARRGGBB",
+  ///     "onBackground": "#AARRGGBB",
+  ///     "surface": "#AARRGGBB",
+  ///     "onSurface": "#AARRGGBB",
+  ///     "error": "#AARRGGBB",
+  ///     "onError": "#AARRGGBB",
+  ///     "inversePrimary": "#AARRGGBB"
+  ///   }
+  /// }
+  static String themeFromTextPrompt({required String description}) {
+    return '''
+You are a theme generator. Return ONLY a JSON object specifying an app theme:
+- Keys: mode ("light"|"dark"), contrast ("normal"|"medium"|"high"), bodyFont, displayFont, and a colors object.
+- Colors must be hex ARGB strings like "#FFFFFFFF".
+- Fonts must be Google Fonts family names (e.g., Inter, Roboto, Nunito, Oswald, Playfair Display, Bebas Neue).
+- Allowed color keys inside "colors": primary, onPrimary, secondary, onSecondary, tertiary, onTertiary, background, onBackground, surface, onSurface, error, onError, inversePrimary.
+- Include only the keys you are confident about; omitted keys will use defaults.
+- No markdown fences, no comments.
+
+Description:
+$description
+
+Return only the JSON object.
+''';
+  }
 }

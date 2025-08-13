@@ -235,4 +235,12 @@ class FirebaseAiService extends AiService {
 
     return _generateJsonFromParts(parts);
   }
+
+  @override
+  Future<Map<String, dynamic>> generateThemeFromText({
+    required String prompt,
+  }) async {
+    final full = AiPrompts.themeFromTextPrompt(description: prompt);
+    return _generateJsonFromParts([TextPart(full)]);
+  }
 }

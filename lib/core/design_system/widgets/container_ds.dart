@@ -3,12 +3,13 @@ import '../base_ds.dart';
 import '../../utils/common_props.dart';
 
 class ContainerDS extends BaseDS<Container> {
-  ContainerDS({this.decoration, this.alignment, this.padding, this.child});
+  ContainerDS({this.decoration, this.alignment, this.padding, this.child, this.themeVariant});
 
   final BoxDecoration? decoration;
   final Alignment? alignment;
   final EdgeInsets? padding;
   final Widget? child;
+  final String? themeVariant;
 
   @override
   String get type => 'container';
@@ -20,22 +21,67 @@ class ContainerDS extends BaseDS<Container> {
     if (alignment != null && c != null) {
       c = Align(alignment: alignment!, child: c);
     }
+
+    // If a themeVariant is provided, resolve the color from Theme at build time.
+    if (themeVariant != null) {
+      return Builder(
+        builder: (ctx) {
+          final scheme = Theme.of(ctx).colorScheme;
+          Color? themedColor;
+          switch (themeVariant) {
+            case 'primaryContainer':
+              themedColor = scheme.primaryContainer;
+              break;
+            case 'secondaryContainer':
+              themedColor = scheme.secondaryContainer;
+              break;
+            case 'tertiaryContainer':
+              themedColor = scheme.tertiaryContainer;
+              break;
+            case 'surfaceContainer':
+              // Fallback to surface if not available in current SDK
+              themedColor = (scheme as dynamic).surfaceContainer ?? scheme.surface;
+              break;
+            case 'surface':
+              themedColor = scheme.surface;
+              break;
+            case 'background':
+              themedColor = scheme.background;
+              break;
+            case 'inversePrimary':
+              themedColor = scheme.inversePrimary;
+              break;
+            default:
+              themedColor = null;
+          }
+          final radius = decoration?.borderRadius;
+          final border = decoration?.border;
+          final deco = BoxDecoration(color: themedColor, borderRadius: radius, border: border);
+          return Container(decoration: deco, child: c);
+        },
+      );
+    }
+
     return Container(decoration: decoration, child: c);
   }
 
   factory ContainerDS.fromJson(Map<String, dynamic> json, Widget? child) {
     // Backward compatibility: if only 'color' exists, wrap into a BoxDecoration
+    final decoMap = json['decoration'];
     final BoxDecoration? deco =
-        _boxDecorationFromJson(json['decoration']) ??
+        _boxDecorationFromJson(decoMap) ??
         (json['color'] != null
             ? BoxDecoration(color: CommonProps.parseColor(json['color']))
             : null);
+
+    final String? variant = (decoMap is Map) ? (decoMap['variant'] as String?) : null;
 
     return ContainerDS(
       decoration: deco,
       alignment: CommonProps.parseAlignment(json['alignment']),
       padding: CommonProps.parsePadding(json['padding']),
       child: child,
+      themeVariant: variant,
     );
   }
 

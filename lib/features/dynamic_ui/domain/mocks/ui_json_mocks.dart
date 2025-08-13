@@ -1,3 +1,5 @@
+// ignore_for_file: unintended_html_in_doc_comment
+
 /// Default "Create" suggestions shown in the input sheet.
 ///
 /// These correspond to richer, hand-crafted JSON mocks returned by
@@ -440,7 +442,6 @@ Map<String, dynamic> _removeLastChild(Map<String, dynamic> node) {
 Map<String, dynamic> _loginScreen() => {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFFFFFFF'},
     'padding': {'all': 16},
   },
   'children': [
@@ -458,11 +459,15 @@ Map<String, dynamic> _loginScreen() => {
           'children': [
             {
               'type': 'text',
-              'props': {'value': 'Welcome back', 'size': 26, 'fontFamily': 'Inter'},
+              'props': {'value': 'Welcome back', 'size': 26},
             },
             {
               'type': 'textField',
-              'props': {'hint': 'Email', 'prefixIcon': 'email', 'borderRadius': 12},
+              'props': {
+                'hint': 'Email',
+                'prefixIcon': 'email',
+                'borderRadius': 12,
+              },
             },
             {
               'type': 'textField',
@@ -482,7 +487,6 @@ Map<String, dynamic> _loginScreen() => {
                   'props': {
                     'label': 'Sign In',
                     'style': {
-                      'backgroundColor': '#FF6200EE',
                       'padding': {'all': 12},
                       'borderRadius': 12,
                     },
@@ -501,7 +505,6 @@ Map<String, dynamic> _loginScreen() => {
 Map<String, dynamic> _profileHeader() => {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFF6F6F6'},
     'padding': {'all': 24},
   },
   'children': [
@@ -530,7 +533,7 @@ Map<String, dynamic> _profileHeader() => {
         },
         {
           'type': 'text',
-          'props': {'value': 'Jane Doe', 'size': 22, 'fontFamily': 'Inter'},
+          'props': {'value': 'Jane Doe', 'size': 22},
         },
         {
           'type': 'row',
@@ -567,7 +570,6 @@ Map<String, dynamic> _profileHeader() => {
 Map<String, dynamic> _productGrid() => {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFFFFFF'},
     'padding': {'all': 12},
   },
   'children': [
@@ -645,7 +647,6 @@ Map<String, dynamic> _productCard(
   'type': 'container',
   'props': {
     'decoration': {
-      'color': color,
       'borderRadius': {'all': 12},
     },
     'padding': {'all': 12},

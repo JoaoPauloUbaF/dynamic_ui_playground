@@ -16,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const Map<String, dynamic> kDefaultDynamicUiJson = {
   'type': 'container',
   'props': {
-    'decoration': {'color': '#FFF'},
     'padding': {'all': 16},
   },
   'children': [
@@ -91,7 +90,6 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
           'type': 'container',
           'props': {
             'decoration': {
-              'color': '#FFFFFFFF',
               'borderRadius': {'all': 16},
             },
             'padding': {'all': 16},

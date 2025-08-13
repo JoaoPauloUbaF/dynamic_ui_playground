@@ -14,7 +14,7 @@ class NewInputFab extends ConsumerWidget {
 
     return FloatingActionButton(
       onPressed: () async {
-        final currentJson = vm.getCurrentJson(ref: ref);
+        final currentJson = vm.getCurrentJson();
         final updateSuggestions = getUpdateSuggestionsForJson(currentJson);
         final result = await showModalBottomSheet(
           context: context,
@@ -31,12 +31,7 @@ class NewInputFab extends ConsumerWidget {
           final voice = result['voice'] == true;
           if (prompt.isNotEmpty || voice) {
             try {
-              await vm.processInput(
-                mode: mode,
-                prompt: prompt,
-                voice: voice,
-                ref: ref,
-              );
+              await vm.processInput(mode: mode, prompt: prompt, voice: voice);
             } catch (e) {
               if (context.mounted) {
                 final action = mode == 'create' ? 'create' : 'update';

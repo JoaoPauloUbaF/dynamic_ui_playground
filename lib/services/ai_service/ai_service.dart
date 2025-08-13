@@ -24,4 +24,11 @@ abstract class AiService {
     required Map<String, dynamic> currentJson,
     Duration captureDuration = const Duration(seconds: 6),
   });
+
+  /// Generate an app theme specification from a natural language description.
+  /// The returned map should include:
+  /// { "mode": "light|dark", "contrast": "normal|medium|high", "bodyFont": String, "displayFont": String }
+  Future<Map<String, dynamic>> generateThemeFromText({
+    required String prompt,
+  });
 }
