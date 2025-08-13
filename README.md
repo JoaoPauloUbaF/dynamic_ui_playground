@@ -1,4 +1,10 @@
 # Dynamic UI Playground
+<img width="190" height="380" alt="Simulator Screenshot - iPhone 16 Pro Max - 2025-08-13 at 20 27 18" src="https://github.com/user-attachments/assets/ea765735-5dea-4927-bf34-f486a0f3a9f3" />
+<img width="190" height="380" alt="Simulator Screenshot - iPhone 16 Pro Max - 2025-08-13 at 20 36 47" src="https://github.com/user-attachments/assets/9ca7a58c-34cd-4323-9e3f-068d2e6af81f" />
+<img width="190" height="380" alt="Simulator Screenshot - iPhone 16 Pro Max - 2025-08-13 at 20 32 14" src="https://github.com/user-attachments/assets/e4c154ce-eefa-4e9a-960c-3752bae8f68f" />
+<img width="190" height="380" alt="Simulator Screenshot - iPhone 16 Pro Max - 2025-08-13 at 20 32 36" src="https://github.com/user-attachments/assets/46179d54-53b8-4eb3-9cb3-e9c7bdc6961d" />
+<img width="190" height="380" alt="Simulator Screenshot - iPhone 16 Pro Max - 2025-08-13 at 20 38 26" src="https://github.com/user-attachments/assets/97d538c0-80f5-4308-8a21-0e46aaced572" />
+
 
 A tiny, expressive mobile playground where natural language turns into live UI.
 Type a prompt (or pick a suggestion) and watch the layout morph in real time. Long‑press the title for a surprise.
