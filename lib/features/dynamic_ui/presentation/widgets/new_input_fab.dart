@@ -59,10 +59,9 @@ class NewInputFab extends ConsumerWidget {
         if (result is Map) {
           final mode = result['mode'] as String? ?? 'create';
           final prompt = (result['prompt'] as String?)?.trim() ?? '';
-          final voice = result['voice'] == true;
-          if (prompt.isNotEmpty || voice) {
+          if (prompt.isNotEmpty) {
             try {
-              await vm.processInput(mode: mode, prompt: prompt, voice: voice);
+              await vm.processInput(mode: mode, prompt: prompt);
             } catch (e) {
               if (context.mounted) {
                 final action = mode == 'create' ? 'create' : 'update';

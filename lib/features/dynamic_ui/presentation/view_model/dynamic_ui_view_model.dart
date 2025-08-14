@@ -154,7 +154,6 @@ class DynamicUiViewModel {
   Future<void> processInput({
     required String mode,
     required String prompt,
-    required bool voice,
     WidgetRef? ref,
   }) async {
     final useRef = ref ?? _ref;
@@ -165,11 +164,7 @@ class DynamicUiViewModel {
         applyNewJson(json, ref: useRef);
         return;
       }
-      if (voice) {
-        await applyCreateAudio(prompt);
-      } else {
-        await applyCreateText(prompt);
-      }
+      await applyCreateText(prompt);
     } else {
       final curr = getCurrentJson(ref: useRef);
       final updated = getUpdateMockForPrompt(prompt, curr);
@@ -177,11 +172,7 @@ class DynamicUiViewModel {
         applyNewJson(updated, ref: useRef);
         return;
       }
-      if (voice) {
-        await applyAudioPrompt(prompt);
-      } else {
-        await applyTextPrompt(prompt);
-      }
+      await applyTextPrompt(prompt);
     }
   }
 
@@ -292,25 +283,6 @@ class DynamicUiViewModel {
     }
   }
 
-  /// Create a new UI from an audio [prompt] via the AI service.
-  ///
-  /// Mirrors [applyCreateText] but uses audio capture and processing under the
-  /// hood, managed by the AI service implementation.
-  Future<void> applyCreateAudio(String prompt) async {
-    final ref = _ref;
-    final ai = _ai;
-    if (ref == null || ai == null) return;
-    ref.read(dynamicUiJsonProvider.notifier).setLoading();
-    try {
-      final created = await ai.createUiFromAudio(prompt: prompt);
-      applyNewJson(created);
-    } catch (e) {
-      // no history change on error
-      ref.read(dynamicUiJsonProvider.notifier).applyJson(lastValidOrDefault);
-      rethrow;
-    }
-  }
-
   // UPDATE flows
   /// Apply a text [prompt] to update the current UI via the AI service.
   ///
@@ -336,26 +308,6 @@ class DynamicUiViewModel {
     }
   }
 
-  /// Apply an audio [prompt] to update the current UI via the AI service.
-  ///
-  /// Works like [applyTextPrompt] but delegates to audio-based update flow.
-  Future<void> applyAudioPrompt(String prompt) async {
-    final ref = _ref;
-    final ai = _ai;
-    if (ref == null || ai == null) return;
-    ref.read(dynamicUiJsonProvider.notifier).setLoading();
-    final current = lastValidOrDefault;
-    try {
-      final updated = await ai.updateUiFromAudio(
-        prompt: prompt,
-        currentJson: current,
-      );
-      applyNewJson(updated);
-    } catch (e) {
-      ref.read(dynamicUiJsonProvider.notifier).applyJson(current);
-      rethrow;
-    }
-  }
 }
 
 /// Kept for backward-compatibility in case anything references default JSON here.

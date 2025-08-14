@@ -102,17 +102,6 @@ class _DynamicInputBottomSheetState extends State<DynamicInputBottomSheet> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {
-                      final text = _controller.text.trim();
-                      Navigator.of(
-                        context,
-                      ).pop({'mode': 'update', 'prompt': text, 'voice': true});
-                    },
-                    icon: const Icon(Icons.mic),
-                    tooltip: 'Voice input',
-                  ),
-                  const SizedBox(width: 4),
                   ElevatedButton(
                     onPressed: () {
                       final text = _controller.text.trim();

@@ -21,9 +21,9 @@ https://joaopauloubaf.github.io/dynamic-ui-playground-demo/
   - A small design system renders Flutter widgets from a concise JSON schema.
   - Clear, visible changes: text, inputs, images, buttons, rows/columns, padding, scroll, etc.
 - Mocked prompts (required) + optional LLM (bonus)
-  - Five “Create” prompts return curated JSON instantly.
+  - Five "Create" prompts return curated JSON instantly.
   - Update prompts (mocked patterns) apply precise edits to the current JSON.
-  - Optional: Firebase Generative AI can generate/update JSON from free‑form text or audio.
+  - Optional: Firebase Generative AI can generate/update JSON from free‑form text.
 - Testable by design
   - Widget tests for the JSON builder.
   - Integration test that runs the “Create” flow end‑to‑end.
@@ -184,8 +184,8 @@ Tip: Avoid hard‑coded colors and font families unless necessary; the theme wil
 ## Building with LLMs (the bonus path)
 
 This project ships with an optional Firebase Generative AI backend that can:
-- Create UI JSON from text or audio
-- Update existing JSON from text or audio
+- Create UI JSON from text
+- Update existing JSON from text
 - Generate theme specs (mode, baseColor, fonts)
 
 Enabling it (optional)
@@ -194,8 +194,6 @@ Enabling it (optional)
 3) iOS: run `pod install` inside ios/ after `flutter pub get`.
 4) Android: Gradle will fetch deps on `flutter run`.
 
-Permissions
-- Microphone permission is used for the audio flow (record package).
 
 Security
 - No secrets are printed. If you add env vars/API keys, prefer secure storage and never echo keys in scripts.

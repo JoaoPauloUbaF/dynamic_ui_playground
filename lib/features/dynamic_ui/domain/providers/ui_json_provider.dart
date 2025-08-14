@@ -45,9 +45,9 @@ const Map<String, dynamic> kDefaultDynamicUiJson = {
               },
               'children': [
                 {
-                  'type': 'icon',
+'type': 'icon',
                   'props': {
-                    'icon': 'mic',
+                    'icon': 'star',
                     'size': 36,
                     'color': '#FFFFFFFF',
                     'material3': true,
